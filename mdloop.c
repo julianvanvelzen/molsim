@@ -9,28 +9,27 @@ void Mdloop(world_rank){
   double dE;
   double energy;
   double distance; 
-  int neighbouringcells[4];
-  int indices[2*NUMBER_OF_PROCESSORS];
+  Cell cell[NUMBER_OF_PROCESSORS];
 
-  neighbouringcells[0] = world_rank + GRIDSIZE;
-  neighbouringcells[1] = world_rank + GRIDSIZE + 1;
-  neighbouringcells[2] = world_rank + 1;
-  neighbouringcells[3] = world_rank - GRIDSIZE + 1;
+  cell[world_rank].neighbouringcells[0] = world_rank + GRIDSIZE;
+  cell[world_rank].neighbouringcells[1] = world_rank + GRIDSIZE + 1;
+  cell[world_rank].neighbouringcells[2] = world_rank + 1;
+  cell[world_rank].neighbouringcells[3] = world_rank - GRIDSIZE + 1;
 
   // rechts 
   if ((world_rank+1)%GRIDSIZE == 0 ){
-    neighbouringcells[1] = (world_rank + 1)%(SQR(GRIDSIZE));
-    neighbouringcells[2] -= GRIDSIZE;
-    neighbouringcells[3] = world_rank - 2*GRIDSIZE+1;
+    cell[world_rank].neighbouringcells[1] = (world_rank + 1)%(SQR(GRIDSIZE));
+    cell[world_rank].neighbouringcells[2] -= GRIDSIZE;
+    cell[world_rank].neighbouringcells[3] = world_rank - 2*GRIDSIZE+1;
   }
   // boven
   if (world_rank+GRIDSIZE > SQR(GRIDSIZE)-1){
-    neighbouringcells[0] = (world_rank + GRIDSIZE)%GRIDSIZE;
-    neighbouringcells[1] = neighbouringcells[1] % SQR(GRIDSIZE);
+    cell[world_rank].neighbouringcells[0] = (world_rank + GRIDSIZE)%GRIDSIZE;
+    cell[world_rank].neighbouringcells[1] = cell[world_rank].neighbouringcells[1] % SQR(GRIDSIZE);
   }
   // onder
-  if (neighbouringcells[3] < 0)
-    neighbouringcells[3] += SQR(GRIDSIZE);
+  if (cell[world_rank].neighbouringcells[3] < 0)
+    cell[world_rank].neighbouringcells[3] += SQR(GRIDSIZE);
 
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
@@ -38,10 +37,10 @@ void Mdloop(world_rank){
 
     if (world_rank == 0){
         printf("indices \n");
-        getindeces(particlelist, &indices);
-        for (j =0; j<(2*NUMBER_OF_PROCESSORS); j++){
-            printf("%d\n", indices[j]);
-        }
+        setindeces(particlelist, &cell);
+        // for (j =0; j<NUMBER_OF_PROCESSORS; j++){
+        //     printf("\n\n%d %d\n", cell[j].start, cell[j].end  );
+        // }
     }
 
     for( j=0; j< NUMBER_OF_PARTICLES; j++){

@@ -27,6 +27,14 @@ typedef struct {
 	double  radial_distribution;
 } Particle;
 
+typedef struct {
+  int start;
+  int end;
+  int totalcount;
+  int neighbouringcells[4];
+  int world_rank;
+} Cell;
+
 
 // typedef struct {
 // 	int particles[MAX_NUMBER_OF_PARTICLES];
@@ -42,7 +50,7 @@ void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE);
 double VectorDistance(Vector v1, Vector v2);
 void Mdloop(int world_rank);
 int cmpfunc (const void * a, const void * b);
-void getindeces(Particle *particlelist, int *indices);
+void setindeces(Particle *particlelist, Cell *indices);
 
 
 // globals

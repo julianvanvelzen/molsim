@@ -40,19 +40,77 @@ int cmpfunc (const void * a, const void * b){
   return ( A->cellnumber - B->cellnumber );
 } 
 
-void getindeces(Particle *particlelist, int *indices){
-  int i;
-  int processor=0;
-  *(indices) = 0;
-  for (i=0;i<NUMBER_OF_PARTICLES;i++){
-    if ( (particlelist+i)->cellnumber > processor ){
-      *(indices+(processor)+1) = i-1;
-      processor++;
-      *(indices+processor+1) = i;
-      processor++;
+void setindeces(Particle *particlelist, Cell *cell){
+  int i, j;
+  int currentcell = 0;
+
+
+  for(i=0;i<NUMBER_OF_PROCESSORS;i++){
+    (cell+i)->start = 0;
+    (cell+i)->end = 0;
+  }
+  
+  i = 0;
+  
+  while (i<NUMBER_OF_PARTICLES){
+    while ((particlelist+i)->cellnumber > currentcell ){
+      (cell+currentcell)->start = i;
+      (cell+currentcell)->end = i;
+      currentcell++;
+    }
+  
+    (cell+currentcell)->start = i;
+  
+    while((particlelist+i)->cellnumber == currentcell){
+      i++;
+    }
+    (cell+currentcell)->end = i;
+
+    currentcell++;
+    if(i >= NUMBER_OF_PARTICLES){
+      for(j=currentcell;j<NUMBER_OF_PROCESSORS;j++){
+        (cell+j)->start = NUMBER_OF_PARTICLES;
+        (cell+j)->end   = NUMBER_OF_PARTICLES;
+      }
     }
   }
-  for(i=processor;i<2*NUMBER_OF_PROCESSORS;i++){
-    *(indices+i)=NUMBER_OF_PROCESSORS;
+
+  for(i=0;i<NUMBER_OF_PROCESSORS;i++){
+    printf("start %d \tend %d \n", (cell+i)->start, (cell+i)->end);
   }
+
+  //   // als particle in lijst nieuwe waarde heeft tov cell number waar je mee bezig bent, 
+  //   // dan is huidig punt het einde van vorige cell reeks, en (i+1) begin van nieuwe
+  //   while ((particlelist+i)->cellnumber > currentcell+1 ){
+  //     currentcell++;
+  //   }
+  //   printf("%d %d %d\n", i, (particlelist+i)->cellnumber, currentcell );
+  //   if ((particlelist+i)->cellnumber > currentcell ){
+  //     (cell + currentcell )->start = i;
+  //     (cell + currentcell )->end   = i;
+  //     currentcell ++;
+  //   }
+  // }
+  // for(i=currentcell;i<NUMBER_OF_PROCESSORS;i++){
+  //   (cell+i)->end   = NUMBER_OF_PROCESSORS-1;
+  //   (cell+i)->start = NUMBER_OF_PROCESSORS-1;
+  // }
+  // for (j =0; j<NUMBER_OF_PROCESSORS; j++){
+  //   printf("%d %d\n", (cell+j)->start, (cell+j)->end  );
+  // }
+
+  // *(cell) = 0;
+  // int currentcell = 1;
+  // for (i=0;i<NUMBER_OF_PARTICLES;i++){
+  //   if ( (particlelist+i)->cellnumber > processor ){
+  //     *(cell+currentcell) = i-1;
+  //     currentcell++;
+  //     *(cell+currentcell) = i;
+  //     currentcell++;  
+  //     processor++;
+  //   }
+  // }
+  // for(i=currentcell;i<2*NUMBER_OF_PROCESSORS;i++){
+  //   *(cell+i)=NUMBER_OF_PROCESSORS;
+  // }
 }
