@@ -33,8 +33,10 @@ void Mdloop(world_rank){
   // // onder
   // if (cell[world_rank].neighbouringcells[3] < 0)
   //   cell[world_rank].neighbouringcells[3] += SQR(GRIDSIZE);
-  getNearbyCoordinates(&cell[world_rank], world_rank);
+  getNearbyCoordinates(&cell, world_rank);
+
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
+
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 

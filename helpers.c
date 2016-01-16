@@ -43,11 +43,6 @@ void getNearbyCoordinates(Cell *cell, int currentPosition){
   (cell+currentPosition)->neighbouringcells[5] = currentPosition - GRIDSIZE - 1;
   (cell+currentPosition)->neighbouringcells[6] = currentPosition - 1;
   (cell+currentPosition)->neighbouringcells[7] = currentPosition + GRIDSIZE - 1;
-  
-
-  if(currentPosition == 5){
-    printf("links van 5 zit %d\n", (cell+currentPosition)->neighbouringcells[6]);
-  }
 
   // links
   if(currentPosition%GRIDSIZE==0){
@@ -65,13 +60,18 @@ void getNearbyCoordinates(Cell *cell, int currentPosition){
   // boven
   if (currentPosition+GRIDSIZE > SQR(GRIDSIZE)-1){
     (cell+currentPosition)->neighbouringcells[0] = (currentPosition + GRIDSIZE)%GRIDSIZE;
-    (cell+currentPosition)->neighbouringcells[1] %= SQR(GRIDSIZE);
+    (cell+currentPosition)->neighbouringcells[1] = (currentPosition + GRIDSIZE+1)%GRIDSIZE;
+    (cell+currentPosition)->neighbouringcells[7] = (currentPosition + GRIDSIZE-1)%GRIDSIZE;
   }
   // onder
-  if (currentPosition-GRIDSIZE < 0)
+  if (currentPosition-GRIDSIZE < 0){
     (cell+currentPosition)->neighbouringcells[3] += SQR(GRIDSIZE);
     (cell+currentPosition)->neighbouringcells[4] += SQR(GRIDSIZE);
     (cell+currentPosition)->neighbouringcells[5] += SQR(GRIDSIZE);
+  }
+
+  // printf("w:%d  %d %d %d %d %d %d %d %d\n", currentPosition, cell[currentPosition].neighbouringcells[0], cell[currentPosition].neighbouringcells[1], cell[currentPosition].neighbouringcells[2], cell[currentPosition].neighbouringcells[3], cell[currentPosition].neighbouringcells[4], cell[currentPosition].neighbouringcells[5], cell[currentPosition].neighbouringcells[6], cell[currentPosition].neighbouringcells[7]);
+
 }
 
 int cmpfunc (const void * a, const void * b){
