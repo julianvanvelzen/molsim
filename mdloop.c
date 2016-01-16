@@ -5,7 +5,6 @@ void Mdloop(world_rank){
   int dummy;
   double size;
   Vector dF;
-  Vector force;
   double dE;
   double energy;
   double distance; 
@@ -32,16 +31,16 @@ void Mdloop(world_rank){
     
     // printf("w:%d  %d %d %d %d %d %d %d %d\n", world_rank, cell[world_rank].neighbouringcells[0], cell[world_rank].neighbouringcells[1], cell[world_rank].neighbouringcells[2], cell[world_rank].neighbouringcells[3], cell[world_rank].neighbouringcells[4], cell[world_rank].neighbouringcells[5], cell[world_rank].neighbouringcells[6], cell[world_rank].neighbouringcells[7]);
             
-    for(i = cell[world_rank].start; i < cell[world_rank].end-1; i++){
+    for(i = cell[world_rank].start; i < cell[world_rank].end; i++){
         
-        for(k = i+1; k <= cell[world_rank].end; k++){
+        for(k = cell[world_rank].start; k < cell[world_rank].end; k++){
+            if(k <= i)
+                continue;
             dF.x = 0;
             dF.y = 0;
             ForceEnergy((particlelist + i)->position, (particlelist + k)->position,&dF,&dE);
-            printf("%lf %lf\n",dF.x, dF.y);
-
             (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
-            (particlelist + k)->force = VectorFlip(VectorAddition((particlelist + k)->force, dF));
+            (particlelist + k)->force = VectorAddition((particlelist + k)->force, VectorFlip(dF));
         }
 
         for (l=0; l<5; l++){
@@ -49,26 +48,25 @@ void Mdloop(world_rank){
             for (m = cell[cell[world_rank].neighbouringcells[l]].start; m < cell[cell[world_rank].neighbouringcells[l]].end; m++){
                 dF.x = 0;
                 dF.y = 0;
-                ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
-                (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
-                (particlelist + m)->force = VectorAddition((particlelist + m)->force, VectorFlip(dF));
+                ForceEnergy(particlelist[i].position, particlelist[m].position,&dF,&dE);
+                particlelist[i].force = VectorAddition(particlelist[i].force, dF);
+                particlelist[m].force = VectorAddition(particlelist[m].force, VectorFlip(dF));
             }
-
         }
 
     }
 
-    if (world_rank == 0){
-            for (j =0; j<NUMBER_OF_PARTICLES; j++){
-                printf("force on particle %d is %lf\n", j, particlelist[j].force.x);
-            }
-        }
-    }
+    // if (world_rank == 0){
+    //     for (j =0; j<NUMBER_OF_PARTICLES; j++){
+    //         printf("force on particle %d is %lf\n", j, particlelist[j].force.x);
+    //     }
+    // }
+
     MPI_Gather(particlelist, size, MPI_BYTE, gather, size, MPI_BYTE, 0, MPI_COMM_WORLD);
     if (world_rank == 0){
       for (j = 0; j<NUMBER_OF_PROCESSORS; j++){
         for (k = 0; k<NUMBER_OF_PARTICLES; k++){
-          (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*j + k)->force );  
+          (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*cell[(particlelist+k)->cellnumber].neighbouringcells[j] + k)->force );  
         }
       }
       for (j =0; j< NUMBER_OF_PARTICLES; j++){
@@ -79,7 +77,7 @@ void Mdloop(world_rank){
 
     MPI_Barrier(MPI_COMM_WORLD);
   }
-  free(gather);
+  // free(gather);
 }
 
 
