@@ -59,13 +59,6 @@ int main(int argc, char** argv) {
 
   if(world_rank==0) {
     endwtime = MPI_Wtime();
-  
-
-
-    // for(i=0; i< NUMBER_OF_PARTICLES; i++)
-    //   printf("Particle %d Cellnumber: %d\n",i, (particlelist+i)->cellnumber );
-    
-
     printf("Time elapsed: %fms\n", (endwtime-startwtime)*1000);
   }
 

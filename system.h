@@ -4,7 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include "ran_uniform.h"
-
+#include <unistd.h>
 
 // constants
 #define MAX_NUMBER_OF_PARTICLES 100
@@ -35,13 +35,6 @@ typedef struct {
   int world_rank;
 } Cell;
 
-
-// typedef struct {
-// 	int particles[MAX_NUMBER_OF_PARTICLES];
-// 	int number_of_particles;
-// 	double pressure;
-// } Cell;
-
 // prototypes
 void Initialize(void);
 Vector VectorAddition(Vector v1, Vector v2);
@@ -55,6 +48,8 @@ int cmpfunc (const void * a, const void * b);
 void setindeces(Particle *particlelist, Cell *indices);
 void loopforces(Cell *cells, int world_rank);
 void sum_contributions(Cell *cells, Particle *gather);
+void gnuprint(FILE *gp);
+void displace_particles();
 
 // globals
 extern int TEMPERATURE;
@@ -65,7 +60,6 @@ extern int NUMBER_OF_PROCESSORS;
 extern int NUMBER_OF_PARTICLES;
 extern int GRIDSIZE;
 extern Particle *particlelist;
-// extern Cell Map[MAX_COLLUMNS][MAX_ROWS];
 
 int NUMBER_OF_PARTICLES;
 int NUMBER_OF_CYCLES;
@@ -75,4 +69,3 @@ double RCUT;
 int TEMPERATURE;
 int REPULSIVE_CST;
 Particle *particlelist;
-// Cell Map[MAX_COLLUMNS][MAX_ROWS];

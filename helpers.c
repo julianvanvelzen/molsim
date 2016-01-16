@@ -159,8 +159,27 @@ void sum_contributions(Cell *cells, Particle *gather){
           (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*cells[(particlelist+k)->cellnumber].neighbouringcells[j] + k)->force );  
       }
   }
-  for (j =0; j< NUMBER_OF_PARTICLES; j++){
-      printf("particle %d: force: %lf %lf\n", j, (particlelist + j)->force.x, (particlelist + j)->force.y);
+}
+
+void gnuprint(FILE *gp){
+
+  int i;
+  fprintf(gp, "plot '-'\n");
+
+  for (i=0; i<NUMBER_OF_PARTICLES; i++){
+    fprintf(gp, "%g %g\n", (particlelist + i)->position.x , (particlelist + i)->position.y );
   }
-  
+
+  fflush(gp);
+  fprintf(gp, "e\n");
+
+}
+
+void displace_particles(){
+  int i;
+
+  for (i=0; i < NUMBER_OF_PARTICLES; i++){
+    (particlelist + i)->position.x += 0.1*RandomNumber()-0.5; 
+    (particlelist + i)->position.y += 0.1*RandomNumber()-0.5; 
+  }
 }
