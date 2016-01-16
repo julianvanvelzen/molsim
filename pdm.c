@@ -19,6 +19,14 @@ int main(int argc, char** argv) {
     printf("Not enough parameters\n");
     exit(1);
   }
+// NUMBER_OF_PROCESSORS  = 9;
+// TEMPERATURE           = 2;
+// NUMBER_OF_CYCLES      = 1;
+// NUMBER_OF_PARTICLES   = 18;
+// RCUT                  = 1;
+// REPULSIVE_CST         = 1;
+// GRIDSIZE              = 3;
+
 
   particlelist = malloc(sizeof(Particle)*NUMBER_OF_PARTICLES);
 
