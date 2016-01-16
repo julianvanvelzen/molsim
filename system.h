@@ -53,7 +53,8 @@ void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);
 int cmpfunc (const void * a, const void * b);
 void setindeces(Particle *particlelist, Cell *indices);
-
+void loopforces(Cell *cells, int world_rank);
+void sum_contributions(Cell *cells, Particle *gather);
 
 // globals
 extern int TEMPERATURE;
