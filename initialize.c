@@ -14,7 +14,7 @@ void Initialize (){
   for (i=0;i<NUMBER_OF_PARTICLES;i++){
     (particlelist + i)->position.x = 0.5 + i%GRIDSIZE;
     (particlelist + i)->position.y = 0.5 + i/GRIDSIZE;
-    (particlelist + i)->cellnumber = 1;
+    (particlelist + i)->cellnumber = i;
   }
 
 }

@@ -31,7 +31,7 @@ typedef struct {
   int start;
   int end;
   int totalcount;
-  int neighbouringcells[4];
+  int neighbouringcells[8];
   int world_rank;
 } Cell;
 
@@ -48,6 +48,7 @@ Vector VectorAddition(Vector v1, Vector v2);
 Vector RanUnit(void);
 void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE);
 double VectorDistance(Vector v1, Vector v2);
+void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);
 int cmpfunc (const void * a, const void * b);
 void setindeces(Particle *particlelist, Cell *indices);

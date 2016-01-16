@@ -11,38 +11,45 @@ void Mdloop(world_rank){
   double distance; 
   Cell cell[NUMBER_OF_PROCESSORS];
 
-  cell[world_rank].neighbouringcells[0] = world_rank + GRIDSIZE;
-  cell[world_rank].neighbouringcells[1] = world_rank + GRIDSIZE + 1;
-  cell[world_rank].neighbouringcells[2] = world_rank + 1;
-  cell[world_rank].neighbouringcells[3] = world_rank - GRIDSIZE + 1;
 
-  // rechts 
-  if ((world_rank+1)%GRIDSIZE == 0 ){
-    cell[world_rank].neighbouringcells[1] = (world_rank + 1)%(SQR(GRIDSIZE));
-    cell[world_rank].neighbouringcells[2] -= GRIDSIZE;
-    cell[world_rank].neighbouringcells[3] = world_rank - 2*GRIDSIZE+1;
-  }
-  // boven
-  if (world_rank+GRIDSIZE > SQR(GRIDSIZE)-1){
-    cell[world_rank].neighbouringcells[0] = (world_rank + GRIDSIZE)%GRIDSIZE;
-    cell[world_rank].neighbouringcells[1] = cell[world_rank].neighbouringcells[1] % SQR(GRIDSIZE);
-  }
-  // onder
-  if (cell[world_rank].neighbouringcells[3] < 0)
-    cell[world_rank].neighbouringcells[3] += SQR(GRIDSIZE);
 
+
+  // cell[world_rank].neighbouringcells[0] = world_rank + GRIDSIZE;
+  // cell[world_rank].neighbouringcells[1] = world_rank + GRIDSIZE + 1;
+  // cell[world_rank].neighbouringcells[2] = world_rank + 1;
+  // cell[world_rank].neighbouringcells[3] = world_rank - GRIDSIZE + 1;
+
+  // // rechts 
+  // if ((world_rank+1)%GRIDSIZE == 0 ){
+  //   cell[world_rank].neighbouringcells[1] = (world_rank + 1)%(SQR(GRIDSIZE));
+  //   cell[world_rank].neighbouringcells[2] -= GRIDSIZE;
+  //   cell[world_rank].neighbouringcells[3] = world_rank - 2*GRIDSIZE+1;
+  // }
+  // // boven
+  // if (world_rank+GRIDSIZE > SQR(GRIDSIZE)-1){
+  //   cell[world_rank].neighbouringcells[0] = (world_rank + GRIDSIZE)%GRIDSIZE;
+  //   cell[world_rank].neighbouringcells[1] = cell[world_rank].neighbouringcells[1] % SQR(GRIDSIZE);
+  // }
+  // // onder
+  // if (cell[world_rank].neighbouringcells[3] < 0)
+  //   cell[world_rank].neighbouringcells[3] += SQR(GRIDSIZE);
+  getNearbyCoordinates(&cell[world_rank], world_rank);
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 
     if (world_rank == 0){
-        printf("indices \n");
-        setindeces(particlelist, &cell);
+        // printf("indices \n");
+        // setindeces(particlelist, &cell);
         // for (j =0; j<NUMBER_OF_PROCESSORS; j++){
         //     printf("\n\n%d %d\n", cell[j].start, cell[j].end  );
         // }
-    }
+        // printf("neighbouringcells: \n");
 
+        // printf("\n");
+    }
+    
+    printf("w:%d  %d %d %d %d %d %d %d %d\n", world_rank, cell[world_rank].neighbouringcells[0], cell[world_rank].neighbouringcells[1], cell[world_rank].neighbouringcells[2], cell[world_rank].neighbouringcells[3], cell[world_rank].neighbouringcells[4], cell[world_rank].neighbouringcells[5], cell[world_rank].neighbouringcells[6], cell[world_rank].neighbouringcells[7]);
     for( j=0; j< NUMBER_OF_PARTICLES; j++){
         if ( (particlelist + j)->cellnumber == world_rank){
             for(k=0;k<NUMBER_OF_PARTICLES;k++){

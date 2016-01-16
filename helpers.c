@@ -34,6 +34,46 @@ Vector RanUnit(void){
 
 }
 
+void getNearbyCoordinates(Cell *cell, int currentPosition){
+  (cell+currentPosition)->neighbouringcells[0] = currentPosition + GRIDSIZE;
+  (cell+currentPosition)->neighbouringcells[1] = currentPosition + GRIDSIZE + 1;
+  (cell+currentPosition)->neighbouringcells[2] = currentPosition + 1;
+  (cell+currentPosition)->neighbouringcells[3] = currentPosition - GRIDSIZE + 1;
+  (cell+currentPosition)->neighbouringcells[4] = currentPosition - GRIDSIZE;
+  (cell+currentPosition)->neighbouringcells[5] = currentPosition - GRIDSIZE - 1;
+  (cell+currentPosition)->neighbouringcells[6] = currentPosition - 1;
+  (cell+currentPosition)->neighbouringcells[7] = currentPosition + GRIDSIZE - 1;
+  
+
+  if(currentPosition == 5){
+    printf("links van 5 zit %d\n", (cell+currentPosition)->neighbouringcells[6]);
+  }
+
+  // links
+  if(currentPosition%GRIDSIZE==0){
+    (cell+currentPosition)->neighbouringcells[5] += GRIDSIZE;   
+    (cell+currentPosition)->neighbouringcells[6] += GRIDSIZE; 
+    (cell+currentPosition)->neighbouringcells[7] += GRIDSIZE;
+  }
+
+  // rechts 
+  if ((currentPosition+1)%GRIDSIZE == 0 ){
+    (cell+currentPosition)->neighbouringcells[1] = (currentPosition + 1)%(SQR(GRIDSIZE));
+    (cell+currentPosition)->neighbouringcells[2] -= GRIDSIZE;
+    (cell+currentPosition)->neighbouringcells[3] = currentPosition - 2*GRIDSIZE+1;
+  }
+  // boven
+  if (currentPosition+GRIDSIZE > SQR(GRIDSIZE)-1){
+    (cell+currentPosition)->neighbouringcells[0] = (currentPosition + GRIDSIZE)%GRIDSIZE;
+    (cell+currentPosition)->neighbouringcells[1] %= SQR(GRIDSIZE);
+  }
+  // onder
+  if (currentPosition-GRIDSIZE < 0)
+    (cell+currentPosition)->neighbouringcells[3] += SQR(GRIDSIZE);
+    (cell+currentPosition)->neighbouringcells[4] += SQR(GRIDSIZE);
+    (cell+currentPosition)->neighbouringcells[5] += SQR(GRIDSIZE);
+}
+
 int cmpfunc (const void * a, const void * b){
   Particle *A = (Particle *)a;
   Particle *B = (Particle *)b;
@@ -65,8 +105,9 @@ void setindeces(Particle *particlelist, Cell *cell){
       i++;
     }
     (cell+currentcell)->end = i;
-
     currentcell++;
+
+
     if(i >= NUMBER_OF_PARTICLES){
       for(j=currentcell;j<NUMBER_OF_PROCESSORS;j++){
         (cell+j)->start = NUMBER_OF_PARTICLES;
@@ -75,9 +116,9 @@ void setindeces(Particle *particlelist, Cell *cell){
     }
   }
 
-  for(i=0;i<NUMBER_OF_PROCESSORS;i++){
-    printf("start %d \tend %d \n", (cell+i)->start, (cell+i)->end);
-  }
+  // for(i=0;i<NUMBER_OF_PROCESSORS;i++){
+  //   printf("start %d \tend %d \n", (cell+i)->start, (cell+i)->end);
+  // }
 
   //   // als particle in lijst nieuwe waarde heeft tov cell number waar je mee bezig bent, 
   //   // dan is huidig punt het einde van vorige cell reeks, en (i+1) begin van nieuwe
