@@ -7,18 +7,26 @@ int main(int argc, char** argv) {
   int i,j,k;
   int world_rank, world_size;
   double startwtime, endwtime;
-  if(argc>3){
-    NUMBER_OF_PROCESSORS = atoi(argv[1]);
-    TEMPERATURE          = atoi(argv[2]);
-    NUMBER_OF_CYCLES     = atoi(argv[3]);
-    NUMBER_OF_PARTICLES  = atoi(argv[4]);
-    RCUT                 = atof(argv[5]);
-    REPULSIVE_CST        = atoi(argv[6]);
-    GRIDSIZE             = atoi(argv[7]);
-  } else {
-    printf("Not enough parameters\n");
-    exit(1);
-  }
+  // if(argc>3){
+  //   NUMBER_OF_PROCESSORS = atoi(argv[1]);
+  //   TEMPERATURE          = atoi(argv[2]);
+  //   NUMBER_OF_CYCLES     = atoi(argv[3]);
+  //   NUMBER_OF_PARTICLES  = atoi(argv[4]);
+  //   RCUT                 = atof(argv[5]);
+  //   REPULSIVE_CST        = atoi(argv[6]);
+  //   GRIDSIZE             = atoi(argv[7]);
+  // } else {
+  //   printf("Not enough parameters\n");
+  //   exit(1);
+  // }
+NUMBER_OF_PROCESSORS  = 9;
+TEMPERATURE           = 2;
+NUMBER_OF_CYCLES      = 1;
+NUMBER_OF_PARTICLES   = 18;
+RCUT                  = 1;
+REPULSIVE_CST         = 1;
+GRIDSIZE              = 3;
+
 
   particlelist = malloc(sizeof(Particle)*NUMBER_OF_PARTICLES);
 

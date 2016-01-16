@@ -10,8 +10,10 @@ void Mdloop(world_rank){
   double energy;
   double distance; 
   Cell cell[NUMBER_OF_PROCESSORS];
-
+  Particle *gather;
+  gather = malloc(sizeof(Particle) * NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS );
   getNearbyCoordinates(&cell, world_rank);
+
 
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
 
@@ -59,12 +61,26 @@ void Mdloop(world_rank){
 
             }
             for (j =0; j<NUMBER_OF_PARTICLES; j++){
-                printf("force on particle %d is %lf\n", j, particlelist[j].force);
+                printf("force on particle %d is %lf\n", j, particlelist[j].force.x);
             }
         }
     }
+    MPI_Gather(particlelist, size, MPI_BYTE, gather, size, MPI_BYTE, 0, MPI_COMM_WORLD);
+    if (world_rank == 0){
+      for (j = 0; j<NUMBER_OF_PROCESSORS; j++){
+        for (k = 0; k<NUMBER_OF_PARTICLES; k++){
+          (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*j + k)->force );  
+        }
+      }
+      for (j =0; j< NUMBER_OF_PARTICLES; j++){
+        printf("particle %d: force: %lf\n", j, (particlelist + j)->force.x);
+      }
+    }  
+
+
+    MPI_Barrier(MPI_COMM_WORLD);
   }
-  MPI_Barrier(MPI_COMM_WORLD);
+  free(gather);
 }
 
 
