@@ -2,14 +2,13 @@
 
 void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE){
 	double distance = VectorDistance(v1, v2);
-	// printf("%lf\n", distance );
 	Vector v3;
 	if (distance > RCUT) return;
 	v3.x = (v1.x - v2.x)/distance;
 	v3.y = (v1.y - v2.y)/distance;
 	*dE  = REPULSION_CST*SQR(distance-RCUT)/SQR(RCUT);
-	dF->x = 2*REPULSION_CST*(distance-RCUT)/SQR(RCUT)*v3.x;
-	dF->y = 2*REPULSION_CST*(distance-RCUT)/SQR(RCUT)*v3.y;
+	dF->x = (2*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.x;
+	dF->y = (2*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.y;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -17,6 +16,12 @@ Vector VectorAddition(Vector v1, Vector v2){
   v3.x = v1.x+v2.x;
   v3.y = v1.y+v2.y;
   return v3;
+}
+
+Vector VectorFlip(Vector vector){
+  vector.x *= -1;
+  vector.x *= -1;
+  return vector;
 }
 
 double VectorDistance(Vector v1, Vector v2){

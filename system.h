@@ -45,6 +45,7 @@ typedef struct {
 // prototypes
 void Initialize(void);
 Vector VectorAddition(Vector v1, Vector v2);
+Vector VectorFlip(Vector vector);
 Vector RanUnit(void);
 void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE);
 double VectorDistance(Vector v1, Vector v2);
@@ -56,7 +57,7 @@ void setindeces(Particle *particlelist, Cell *indices);
 
 // globals
 extern int TEMPERATURE;
-extern int RCUT;
+extern double RCUT;
 extern int REPULSIVE_CST;
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;
@@ -69,7 +70,7 @@ int NUMBER_OF_PARTICLES;
 int NUMBER_OF_CYCLES;
 int NUMBER_OF_PROCESSORS;
 int GRIDSIZE;
-int RCUT;
+double RCUT;
 int TEMPERATURE;
 int REPULSIVE_CST;
 Particle *particlelist;

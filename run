@@ -4,8 +4,8 @@
 set NUMBER_OF_PROCESSORS  = 9
 set TEMPERATURE           = 2
 set NUMBER_OF_CYCLES      = 1
-set NUMBER_OF_PARTICLES   = 9
-set RCUT                  = 1
+set NUMBER_OF_PARTICLES   = 18
+set RCUT                  = 1.5
 set REPULSIVE_CST         = 1
 set GRIDSIZE              = 3
 

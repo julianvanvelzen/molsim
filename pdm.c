@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     TEMPERATURE          = atoi(argv[2]);
     NUMBER_OF_CYCLES     = atoi(argv[3]);
     NUMBER_OF_PARTICLES  = atoi(argv[4]);
-    RCUT                 = atoi(argv[5]);
+    RCUT                 = atof(argv[5]);
     REPULSIVE_CST        = atoi(argv[6]);
     GRIDSIZE             = atoi(argv[7]);
   } else {
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
           \nTEMPERATURE:          %d\
           \nNUMBER_OF_CYCLES:     %d\
           \nNUMBER_OF_PARTICLES:  %d\
-          \nRCUT:                 %d\
+          \nRCUT:                 %lf\
           \nREPULSIVE_CST         %d\
           \nGRIDSIZE:             %d\ 
           \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE );

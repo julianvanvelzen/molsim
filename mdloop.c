@@ -1,7 +1,7 @@
 #include "system.h"
 
 void Mdloop(world_rank){
-  int i,j,k;
+  int i,j,k,l,m;
   int dummy;
   double size;
   Vector dF;
@@ -11,28 +11,6 @@ void Mdloop(world_rank){
   double distance; 
   Cell cell[NUMBER_OF_PROCESSORS];
 
-
-
-
-  // cell[world_rank].neighbouringcells[0] = world_rank + GRIDSIZE;
-  // cell[world_rank].neighbouringcells[1] = world_rank + GRIDSIZE + 1;
-  // cell[world_rank].neighbouringcells[2] = world_rank + 1;
-  // cell[world_rank].neighbouringcells[3] = world_rank - GRIDSIZE + 1;
-
-  // // rechts 
-  // if ((world_rank+1)%GRIDSIZE == 0 ){
-  //   cell[world_rank].neighbouringcells[1] = (world_rank + 1)%(SQR(GRIDSIZE));
-  //   cell[world_rank].neighbouringcells[2] -= GRIDSIZE;
-  //   cell[world_rank].neighbouringcells[3] = world_rank - 2*GRIDSIZE+1;
-  // }
-  // // boven
-  // if (world_rank+GRIDSIZE > SQR(GRIDSIZE)-1){
-  //   cell[world_rank].neighbouringcells[0] = (world_rank + GRIDSIZE)%GRIDSIZE;
-  //   cell[world_rank].neighbouringcells[1] = cell[world_rank].neighbouringcells[1] % SQR(GRIDSIZE);
-  // }
-  // // onder
-  // if (cell[world_rank].neighbouringcells[3] < 0)
-  //   cell[world_rank].neighbouringcells[3] += SQR(GRIDSIZE);
   getNearbyCoordinates(&cell, world_rank);
 
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
@@ -41,34 +19,70 @@ void Mdloop(world_rank){
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 
     if (world_rank == 0){
-        // printf("indices \n");
-        // setindeces(particlelist, &cell);
-        // for (j =0; j<NUMBER_OF_PROCESSORS; j++){
-        //     printf("\n\n%d %d\n", cell[j].start, cell[j].end  );
-        // }
-        // printf("neighbouringcells: \n");
-
-        // printf("\n");
-    }
-    
-    printf("w:%d  %d %d %d %d %d %d %d %d\n", world_rank, cell[world_rank].neighbouringcells[0], cell[world_rank].neighbouringcells[1], cell[world_rank].neighbouringcells[2], cell[world_rank].neighbouringcells[3], cell[world_rank].neighbouringcells[4], cell[world_rank].neighbouringcells[5], cell[world_rank].neighbouringcells[6], cell[world_rank].neighbouringcells[7]);
-    for( j=0; j< NUMBER_OF_PARTICLES; j++){
-        if ( (particlelist + j)->cellnumber == world_rank){
-            for(k=0;k<NUMBER_OF_PARTICLES;k++){
-                ForceEnergy((particlelist + j)->position, (particlelist + j)->position,&dF,&dE);
-                distance += VectorDistance((particlelist + j)->position, (particlelist + k)->position);
-                force = VectorAddition(force, dF);
-                // printf("world = %d distance = %lf %d %d\n", world_rank, , j,k);
-            }
-
-            (particlelist + j)->force = force;
-            dE   = 0;
-            dF.x = 0;
-            dF.y = 0;
-
+        printf("indices \n");
+        setindeces(particlelist, &cell);
+        for (j =0; j<NUMBER_OF_PROCESSORS; j++){
+            printf("%d %d\n", cell[j].start, cell[j].end  );
         }
 
+        // printf("distance between part 1 en 2 is %lf\n", VectorDistance(particlelist[0].position, particlelist[1].position));
     }
+    
+    // printf("w:%d  %d %d %d %d %d %d %d %d\n", world_rank, cell[world_rank].neighbouringcells[0], cell[world_rank].neighbouringcells[1], cell[world_rank].neighbouringcells[2], cell[world_rank].neighbouringcells[3], cell[world_rank].neighbouringcells[4], cell[world_rank].neighbouringcells[5], cell[world_rank].neighbouringcells[6], cell[world_rank].neighbouringcells[7]);
+
+    if (world_rank == 0){
+        for(j = 0; j < NUMBER_OF_PROCESSORS; j++){
+            
+            for(i = cell[world_rank].start; i < cell[world_rank].end-1; i++){
+                
+                for(k = i+1; k <= cell[world_rank].end; k++){
+                    dF.x = 0;
+                    dF.y = 0;
+                    ForceEnergy((particlelist + i)->position, (particlelist + k)->position,&dF,&dE);
+                    printf("%lf %lf\n",dF.x, dF.y);
+
+                    (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
+                    (particlelist + k)->force = VectorFlip(VectorAddition((particlelist + k)->force, dF));
+                }
+
+                // for (l=0; l<5; l++){
+
+                //     for (m = cell[cell[world_rank].neighbouringcells[l]].start; m < cell[cell[world_rank].neighbouringcells[l]].end; m++){
+                //         dF.x = 0;
+                //         dF.y = 0;
+                //         ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
+                //         (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
+                //         (particlelist + m)->force = VectorAddition((particlelist + m)->force, VectorFlip(dF));
+                //     }
+
+                // }
+
+            }
+            for (j =0; j<NUMBER_OF_PARTICLES; j++){
+                printf("force on particle %d is %lf\n", j, particlelist[j].force);
+            }
+        }
+    }
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
+
+
+        // if ( (particlelist + j)->cellnumber == world_rank){
+        //     for(k=0;k<NUMBER_OF_PARTICLES;k++){
+        //         ForceEnergy((particlelist + j)->position, (particlelist + j)->position,&dF,&dE);
+        //         distance += VectorDistance((particlelist + j)->position, (particlelist + k)->position);
+        //         force = VectorAddition(force, dF);
+        //         // printf("world = %d distance = %lf %d %d\n", world_rank, , j,k);
+        //     }
+
+        //     (particlelist + j)->force = force;
+        //     dE   = 0;
+        //     dF.x = 0;
+        //     dF.y = 0;
+
+        // }
 
     //pak je eigen particles
     //bereken vector distance met alle andere
@@ -78,11 +92,6 @@ void Mdloop(world_rank){
     
 
     // MPI_Reduce(&i, &dummy, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD)
-    MPI_Barrier(MPI_COMM_WORLD);
-
-  }
-}
-
 
 
     // 1: gehele map gaat naar helft van processors
