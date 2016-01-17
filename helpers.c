@@ -168,7 +168,18 @@ void sum_contributions(Cell *cells, Particle *gather){
 void gnuprint(FILE *gp){
 
   int i;
-  fprintf(gp, "plot '-'\n");
+  char options[100] = "unset autoscale\nset xrange [0:";
+  char a[] = "]\nset yrange [0:";
+  char b[] = "]\nplot '-'\n";
+  char c[3];
+  sprintf(c, "%d", GRIDSIZE);
+  strcat(options, c);
+  strcat(options, a);
+  strcat(options, c);
+  strcat(options, b);
+  
+
+  fprintf(gp, options);
 
   for (i=0; i<NUMBER_OF_PARTICLES; i++){
     fprintf(gp, "%g %g\n", (particlelist + i)->position.x , (particlelist + i)->position.y );
