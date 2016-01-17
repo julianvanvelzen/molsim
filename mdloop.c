@@ -12,7 +12,6 @@ void Mdloop(world_rank){
   for (i = 0; i < NUMBER_OF_PROCESSORS; i++)
     getNearbyCoordinates(&cells, i);
 
-    
 
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
@@ -27,7 +26,7 @@ void Mdloop(world_rank){
 
     if (world_rank == 0){
         sum_contributions(&cells, gather);
-        gnuprint(gp);
+        // gnuprint(gp);
         displace_particles();
     }
 
@@ -41,4 +40,3 @@ void Mdloop(world_rank){
   }
   free(gather);
 }
-

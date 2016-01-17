@@ -30,11 +30,18 @@ int main(int argc, char** argv) {
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
+
+
   // initialize particles
   if(world_rank==0){
     Initialize();
     qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
     startwtime = MPI_Wtime();
+
+    printf("start coordinates\n");
+    for (i = 0; i< NUMBER_OF_PARTICLES; i++)
+      printf("%d %lf %lf\n", (particlelist+i)->cellnumber, (particlelist+i)->position.x, (particlelist+i)->position.y );
+    printf("\n");
 
     printf("argc:                 %d\
           \nNUMBER_OF_PROCESSORS: %d\
