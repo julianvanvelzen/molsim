@@ -3,7 +3,7 @@
 void Mdloop(world_rank){
   int i,j,k,l,m;
   double size;
-  FILE * gp = popen ("gnuplot -persistent", "w");
+  FILE * gp = popen ("gnuplot -persist", "w");
 
   Cell cells[NUMBER_OF_PROCESSORS];
   Particle *gather;
@@ -36,7 +36,6 @@ void Mdloop(world_rank){
 
     if (world_rank == 0)
         qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
-
   }
   free(gather);
 }

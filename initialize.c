@@ -3,22 +3,20 @@
 void Initialize (){
 
   int i;
-  int c;
-  double x;
-  double y;
 
   for (i=0;i<NUMBER_OF_PARTICLES;i++){
-    c = RandomNumber() * NUMBER_OF_PROCESSORS;
-    y = RandomNumber() + c / GRIDSIZE;
-    x = RandomNumber() + c % GRIDSIZE;
 
-    (particlelist + i)->position.x = x;
-    (particlelist + i)->position.y = y;
+    (particlelist + i)->position.x = 0.5 + (i % GRIDSIZE);
+    (particlelist + i)->position.y = (0.5 + (i / GRIDSIZE))/2.0;
 
-    (particlelist + i)->velocity.x = RandomVelocity(TEMPERATURE);
-    (particlelist + i)->velocity.y = RandomVelocity(TEMPERATURE);
+    // (particlelist + i)->position.x = RandomNumber() * GRIDSIZE;
+    // (particlelist + i)->position.y = RandomNumber() * GRIDSIZE;
+
+    (particlelist + i)->velocity.x = /*RandomVelocity(TEMPERATURE)*/ 0;
+    (particlelist + i)->velocity.y = /*RandomVelocity(TEMPERATURE)*/ 0;
     
-    (particlelist + i)->cellnumber = c ;
+    AssignCellnumber(i);
+
     (particlelist + i)->force.x = 0.0;
     (particlelist + i)->force.y = 0.0;
   }

@@ -12,6 +12,7 @@
 #define MAX_COLLUMNS 3
 #define REPULSION_CST 1
 #define SQR(x) ((x)*(x))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define DELTAT 0.001
 
 // Structs
@@ -22,8 +23,11 @@ typedef struct {
 
 typedef struct {
 	Vector position;
+	Vector oldVelocity;
 	Vector velocity;
+
 	Vector force;
+
 	int cellnumber;
 	double  radial_distribution;
 } Particle;
@@ -47,6 +51,7 @@ void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);
 int cmpfunc (const void * a, const void * b);
 void setindeces(Particle *particlelist, Cell *indices);
+void AssignCellnumber(int Particlenumber);
 void loopforces(Cell *cells, int world_rank);
 void sum_contributions(Cell *cells, Particle *gather);
 void gnuprint(FILE *gp);

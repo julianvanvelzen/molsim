@@ -13,14 +13,14 @@ void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE){
 
 Vector VectorAddition(Vector v1, Vector v2){
   Vector v3;
-  v3.x = v1.x+v2.x;
-  v3.y = v1.y+v2.y;
+  v3.x = v1.x + v2.x;
+  v3.y = v1.y + v2.y;
   return v3;
 }
 
 Vector VectorFlip(Vector vector){
   vector.x *= -1;
-  vector.x *= -1;
+  vector.y *= -1;
   return vector;
 }
 
@@ -129,14 +129,18 @@ void loopforces(Cell *cells, int world_rank){
 
   // loop over all particles in your own cell
   for(i = (cells + world_rank)->start; i < (cells + world_rank)->end; i++){
+    (particlelist + i)->force.x = 0;
+    (particlelist + i)->force.y = 0;
 
       // loop over all other particles in your own cell
-      for(k = (cells + world_rank)->start; k < (cells + world_rank)->end; k++){
+      for(k = (cells + world_rank)->start; k < MIN((cells + world_rank)->end, NUMBER_OF_PARTICLES); k++){
           if(k <= i)
               continue;
           dF.x = 0;
           dF.y = 0;
+
           ForceEnergy((particlelist + i)->position, (particlelist + k)->position,&dF,&dE);
+
           (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
           (particlelist + k)->force = VectorAddition((particlelist + k)->force, VectorFlip(dF));
       }
@@ -147,10 +151,10 @@ void loopforces(Cell *cells, int world_rank){
               dF.x = 0;
               dF.y = 0;
               ForceEnergy(particlelist[i].position, particlelist[m].position,&dF,&dE);
-              particlelist[i].force = VectorAddition(particlelist[i].force, dF);
-              particlelist[m].force = VectorAddition(particlelist[m].force, VectorFlip(dF));
+              (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
+              (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));
           }
-      }
+      } 
   }
 }
 
@@ -159,8 +163,8 @@ void sum_contributions(Cell *cells, Particle *gather){
 
   for (k = 0; k < NUMBER_OF_PARTICLES; k++){
       for (j = 0; j < 8; j++){
-          // printf("neighbouringcells %d %d\n", (cells + (particlelist+k)->cellnumber)->neighbouringcells[j], (particlelist+k)->cellnumber );
-          (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*cells[(particlelist+k)->cellnumber].neighbouringcells[j] + k)->force );  
+        (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*(cells+(particlelist+k)->cellnumber)->neighbouringcells[j] + k)->force ); 
+          // (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*cells[(particlelist+k)->cellnumber].neighbouringcells[j] + k)->force );  
       }
   }
 }
@@ -179,7 +183,7 @@ void gnuprint(FILE *gp){
   strcat(options, a);
   strcat(options, c);
   strcat(options, b);
-  
+   
 
   fprintf(gp, options);
 
@@ -191,55 +195,40 @@ void gnuprint(FILE *gp){
   fprintf(gp, "e\n");
 }
 
+void AssignCellnumber(int Particlenumber){
+  (particlelist + Particlenumber)->cellnumber = (int)(particlelist + Particlenumber)->position.x + GRIDSIZE*(int)(particlelist + Particlenumber)->position.y;
+}
+
 void displace_particles(){
   int i;
   double x,y;
-  int c;
-  double Epsilon = 0.0000001;
 
   for (i = 0; i < NUMBER_OF_PARTICLES; i++){    
     x = (particlelist + i)->position.x;
     y = (particlelist + i)->position.y;
 
+    printf("%lf\n", (particlelist + i)->force.y);
+
     // update positions
-    x += (particlelist + i)->velocity.x * DELTAT;
-    y += (particlelist + i)->velocity.y * DELTAT;
+    x += (particlelist + i)->velocity.x * DELTAT/* + (particlelist + i)->force.x * SQR(DELTAT)*/;
+    y += (particlelist + i)->velocity.y * DELTAT/* + (particlelist + i)->force.y * SQR(DELTAT)*/;
 
     // check for pbc
-    if ( y > GRIDSIZE ){
+    if( y > GRIDSIZE )
       y -= GRIDSIZE; 
-    }
-    if ( y < 0 ){
-      y = GRIDSIZE - y;
-    }
-    if ( x > GRIDSIZE ){
+
+    if( x > GRIDSIZE )
       x -= GRIDSIZE; 
-    }
-    if ( x < 0 ){
-      x = GRIDSIZE - x;
-    }
 
-    c = (int)x  % GRIDSIZE + (int)y * GRIDSIZE;
+    if( y < 0        )
+      y += GRIDSIZE;
 
-    if (c > 8 || c < 0){
-      if ( y > GRIDSIZE ){
-        y -= GRIDSIZE; 
-      }      
-      // if((y - GRIDSIZE > Epsilon) && (fabs(y- GRIDSIZE ) > Epsilon)){ 
-      //   y = y - GRIDSIZE; 
-      // }
-
-      c = (int)x  % GRIDSIZE + (int)y * GRIDSIZE;
-
-
-      // printf("y %lf true %d \n", y, y > (double)GRIDSIZE );
-      // printf("cellnumber %d xc %d yc %d x %lf y %lf\n", c, (int)x  % GRIDSIZE ,  (int)y * GRIDSIZE, x, y);
-      
-    }
+    if( x < 0        )
+      x += GRIDSIZE;
 
     (particlelist + i)->position.x = x;
     (particlelist + i)->position.y = y;
-    (particlelist + i)->cellnumber = c;
 
+    AssignCellnumber(i);
   }
 }
