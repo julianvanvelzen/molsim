@@ -26,7 +26,7 @@ void Mdloop(world_rank){
 
     if (world_rank == 0){
         sum_contributions(&cells, gather);
-        // gnuprint(gp);
+        gnuprint(gp);
         displace_particles();
     }
 

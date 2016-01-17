@@ -182,6 +182,7 @@ void displace_particles(){
   int i;
   double x,y;
   int c;
+  double Epsilon = 0.0000001;
 
   for (i = 0; i < NUMBER_OF_PARTICLES; i++){    
     x = (particlelist + i)->position.x;
@@ -193,9 +194,7 @@ void displace_particles(){
 
     // check for pbc
     if ( y > GRIDSIZE ){
-      printf("before %lf \n ", y);
-      y = y - GRIDSIZE; 
-      printf("after %lf \n", y);
+      y -= GRIDSIZE; 
     }
     if ( y < 0 ){
       y = GRIDSIZE - y;
@@ -210,8 +209,18 @@ void displace_particles(){
     c = (int)x  % GRIDSIZE + (int)y * GRIDSIZE;
 
     if (c > 8 || c < 0){
-      printf("y %lf true %d \n", y, y > (double)GRIDSIZE );
-      printf("cellnumber %d xc %d yc %d x %lf y %lf\n", c, (int)x  % GRIDSIZE ,  (int)y * GRIDSIZE, x, y);
+      if ( y > GRIDSIZE ){
+        y -= GRIDSIZE; 
+      }      
+      // if((y - GRIDSIZE > Epsilon) && (fabs(y- GRIDSIZE ) > Epsilon)){ 
+      //   y = y - GRIDSIZE; 
+      // }
+
+      c = (int)x  % GRIDSIZE + (int)y * GRIDSIZE;
+
+
+      // printf("y %lf true %d \n", y, y > (double)GRIDSIZE );
+      // printf("cellnumber %d xc %d yc %d x %lf y %lf\n", c, (int)x  % GRIDSIZE ,  (int)y * GRIDSIZE, x, y);
       
     }
 
