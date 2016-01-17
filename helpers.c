@@ -168,6 +168,8 @@ void sum_contributions(Cell *cells, Particle *gather){
 void gnuprint(FILE *gp){
 
   int i;
+
+  // fack c
   char options[100] = "unset autoscale\nset xrange [0:";
   char a[] = "]\nset yrange [0:";
   char b[] = "]\nplot '-'\n";
