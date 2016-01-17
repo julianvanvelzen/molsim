@@ -12,6 +12,7 @@
 #define MAX_COLLUMNS 3
 #define REPULSION_CST 1
 #define SQR(x) ((x)*(x))
+#define DELTAT 0.001
 
 // Structs
 typedef struct {

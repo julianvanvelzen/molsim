@@ -38,11 +38,6 @@ int main(int argc, char** argv) {
     qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
     startwtime = MPI_Wtime();
 
-    printf("start coordinates\n");
-    for (i = 0; i< NUMBER_OF_PARTICLES; i++)
-      printf("%d %lf %lf\n", (particlelist+i)->cellnumber, (particlelist+i)->position.x, (particlelist+i)->position.y );
-    printf("\n");
-
     printf("argc:                 %d\
           \nNUMBER_OF_PROCESSORS: %d\
           \nTEMPERATURE:          %d\

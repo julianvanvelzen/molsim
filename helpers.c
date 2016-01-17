@@ -79,6 +79,9 @@ void getNearbyCoordinates(Cell *cells, int currentPosition){
 int cmpfunc (const void * a, const void * b){
   Particle *A = (Particle *)a;
   Particle *B = (Particle *)b;
+  // int c = A->cellnumber - B->cellnumber;
+  // free(A);
+  // free(B);
   return ( A->cellnumber - B->cellnumber );
 } 
 
@@ -156,6 +159,7 @@ void sum_contributions(Cell *cells, Particle *gather){
 
   for (k = 0; k < NUMBER_OF_PARTICLES; k++){
       for (j = 0; j < 8; j++){
+          // printf("neighbouringcells %d %d\n", (cells + (particlelist+k)->cellnumber)->neighbouringcells[j], (particlelist+k)->cellnumber );
           (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*cells[(particlelist+k)->cellnumber].neighbouringcells[j] + k)->force );  
       }
   }
@@ -172,20 +176,48 @@ void gnuprint(FILE *gp){
 
   fflush(gp);
   fprintf(gp, "e\n");
-
 }
 
 void displace_particles(){
   int i;
-  Vector pos;
+  double x,y;
+  int c;
 
-  for (i=0; i < NUMBER_OF_PARTICLES; i++){
-    pos.x += 0.1*RandomNumber()-0.05; 
-    pos.y += 0.1*RandomNumber()-0.05; 
-    // if ( pos.x > GRIDSIZE )
-       
-    // if ( pos.y > GRIDSIZE )
+  for (i = 0; i < NUMBER_OF_PARTICLES; i++){    
+    x = (particlelist + i)->position.x;
+    y = (particlelist + i)->position.y;
 
-    (particlelist + i)->position = pos;
+    // update positions
+    x += (particlelist + i)->velocity.x * DELTAT;
+    y += (particlelist + i)->velocity.y * DELTAT;
+
+    // check for pbc
+    if ( y > GRIDSIZE ){
+      printf("before %lf \n ", y);
+      y = y - GRIDSIZE; 
+      printf("after %lf \n", y);
+    }
+    if ( y < 0 ){
+      y = GRIDSIZE - y;
+    }
+    if ( x > GRIDSIZE ){
+      x -= GRIDSIZE; 
+    }
+    if ( x < 0 ){
+      x = GRIDSIZE - x;
+    }
+
+    c = (int)x  % GRIDSIZE + (int)y * GRIDSIZE;
+
+    if (c > 8 || c < 0){
+      printf("y %lf true %d \n", y, y > (double)GRIDSIZE );
+      printf("cellnumber %d xc %d yc %d x %lf y %lf\n", c, (int)x  % GRIDSIZE ,  (int)y * GRIDSIZE, x, y);
+      
+    }
+
+    (particlelist + i)->position.x = x;
+    (particlelist + i)->position.y = y;
+    (particlelist + i)->cellnumber = c;
+
   }
 }
