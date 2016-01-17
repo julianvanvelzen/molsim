@@ -177,9 +177,15 @@ void gnuprint(FILE *gp){
 
 void displace_particles(){
   int i;
+  Vector pos;
 
   for (i=0; i < NUMBER_OF_PARTICLES; i++){
-    (particlelist + i)->position.x += 0.1*RandomNumber()-0.5; 
-    (particlelist + i)->position.y += 0.1*RandomNumber()-0.5; 
+    pos.x += 0.1*RandomNumber()-0.05; 
+    pos.y += 0.1*RandomNumber()-0.05; 
+    // if ( pos.x > GRIDSIZE )
+       
+    // if ( pos.y > GRIDSIZE )
+
+    (particlelist + i)->position = pos;
   }
 }
