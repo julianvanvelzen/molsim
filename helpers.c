@@ -6,9 +6,9 @@ void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE){
 	if (distance > RCUT) return;
 	v3.x = (v1.x - v2.x)/distance;
 	v3.y = (v1.y - v2.y)/distance;
-	*dE  = REPULSION_CST*SQR(distance-RCUT)/SQR(RCUT);
-	dF->x = (2.0*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.x;
-	dF->y = (2.0*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.y;
+	*dE  = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
+	dF->x = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT))*v3.x;
+	dF->y = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT))*v3.y;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -131,27 +131,27 @@ void loopforces(Cell *cells, int world_rank){
   Vector dF;
   double dE;
 
+
   // loop over all particles in your own cell
     i = (cells + world_rank)->start;
     do {
         if(i == (cells + world_rank)->end)
             continue;
+
+
       // loop over all other particles in your own cell
       k = (cells + world_rank)->start;
       do {
           k++;
-          if(k <= i)
-              continue;
-
+          if(k <= i){
+            continue;
+          }
           dF.x = 0;
           dF.y = 0;
           ForceEnergy((particlelist + i)->position, (particlelist + k)->position,&dF,&dE);
-          (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));     
-          (particlelist + k)->force = VectorAddition((particlelist + k)->force, dF); 
-
-          // printf("i %d, k %d if %lf kf %lf \n", i, k, (particlelist + i)->force.x, (particlelist + k)->force.x);
-
-      } while (k < (cells + world_rank)->end-2);
+          (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);     
+          (particlelist + k)->force = VectorAddition((particlelist + k)->force, VectorFlip(dF)); 
+      } while (k < (cells + world_rank)->end-1 || k < i);
 
       // loop over all particles in neighbouring cells
       for (l=0; l<=4; l++){
@@ -159,25 +159,15 @@ void loopforces(Cell *cells, int world_rank){
             dF.x = 0;
             dF.y = 0;
             ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
-            (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));     
-            (particlelist + m)->force = VectorAddition((particlelist + m)->force, dF); 
-
-            printf("i %d, k %d if %lf kf %lf \n", i, k, (particlelist + i)->force.x, (particlelist + m)->force.x);
+            (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);     
+            (particlelist + m)->force = VectorAddition((particlelist + m)->force, VectorFlip(dF)); 
             m++;
         };
       }
+
     i++;
   } while (i < (cells + world_rank)->end);
 }
-      // for (l=0; l<=4; l++){
-      //     for (m = (cells + (cells+world_rank)->neighbouringcells[l])->start; m < (cells + (cells + world_rank)->neighbouringcells[l])->end-1; m++){
-      //         dF.x = 0;
-      //         dF.y = 0;
-      //         ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
-      //         (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));
-      //         (particlelist + m)->force = VectorAddition((particlelist + m)->force, dF);
-      //     }
-      // } 
 
 void sum_contributions(Cell *cells, Particle *gather){
   int k,j, neighbour_offset, current_box_offset;

@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     NUMBER_OF_CYCLES     = atoi(argv[3]);
     NUMBER_OF_PARTICLES  = atoi(argv[4]);
     RCUT                 = atof(argv[5]);
-    REPULSIVE_CST        = atoi(argv[6]);
+    REPULSIVE_CST        = atof(argv[6]);
     GRIDSIZE             = atoi(argv[7]);
   } else {
     printf("Not enough parameters\n");
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
           \nNUMBER_OF_CYCLES:     %d\
           \nNUMBER_OF_PARTICLES:  %d\
           \nRCUT:                 %lf\
-          \nREPULSIVE_CST         %d\
+          \nREPULSIVE_CST         %lf\
           \nGRIDSIZE:             %d\ 
           \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE );
   }

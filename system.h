@@ -10,7 +10,6 @@
 #define MAX_NUMBER_OF_PARTICLES 100
 #define MAX_ROWS 3
 #define MAX_COLLUMNS 3
-#define REPULSION_CST 1
 #define SQR(x) ((x)*(x))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define DELTAT 0.001
@@ -61,7 +60,7 @@ void ClearForces();
 // globals
 extern int TEMPERATURE;
 extern double RCUT;
-extern int REPULSIVE_CST;
+extern double REPULSIVE_CST;
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;
 extern int NUMBER_OF_PARTICLES;
@@ -73,6 +72,6 @@ int NUMBER_OF_CYCLES;
 int NUMBER_OF_PROCESSORS;
 int GRIDSIZE;
 double RCUT;
+double REPULSIVE_CST;
 int TEMPERATURE;
-int REPULSIVE_CST;
 Particle *particlelist;
