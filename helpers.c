@@ -2,11 +2,14 @@
 
 void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE){
 	double distance = VectorDistance(v1, v2);
-	Vector v3;
-	if (distance > RCUT) return;
+  
+  if (distance > RCUT) return;
+  Vector v3;
 	v3.x = (v1.x - v2.x)/distance;
 	v3.y = (v1.y - v2.y)/distance;
 	*dE  = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
+
+
 	dF->x = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT))*v3.x;
 	dF->y = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT))*v3.y;
 }
@@ -154,19 +157,44 @@ void loopforces(Cell *cells, int world_rank){
       } while (k < (cells + world_rank)->end-1 || k < i);
 
       // loop over all particles in neighbouring cells
-      for (l=0; l<=4; l++){
-        for (m = (cells + (cells+world_rank)->neighbouringcells[l])->start; m < (cells + (cells + world_rank)->neighbouringcells[l])->end-1; m++) {
+      for (l=0; l<4; l++){
+        if ((cells + (cells+world_rank)->neighbouringcells[l])->start == (cells + (cells+world_rank)->neighbouringcells[l])->end)
+          continue;
+
+        m = (cells + (cells+world_rank)->neighbouringcells[l])->start;
+        do{
+            if (l == 0 || l == 1)
+              if ((cells+world_rank)->neighbouringcells[l] < GRIDSIZE){
+                (particlelist + i)->position.y -= GRIDSIZE;
+
+              }
+            if (l >= 1){
+              if ((cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)
+                (particlelist + i)->position.x -= GRIDSIZE;
+            }
+                
             dF.x = 0;
             dF.y = 0;
+
             ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
             (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);     
             (particlelist + m)->force = VectorAddition((particlelist + m)->force, VectorFlip(dF)); 
+
+            if (l == 0 || l == 1){
+              if ((cells+world_rank)->neighbouringcells[l] < GRIDSIZE)
+                (particlelist + i)->position.y += GRIDSIZE;
+            }
+            if (l >= 1){
+              if ((cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)
+                (particlelist + i)->position.x += GRIDSIZE;
+            }
             m++;
-        };
-      }
+          } while (m < (cells + (cells + world_rank)->neighbouringcells[l])->end-1);
+        }
 
     i++;
   } while (i < (cells + world_rank)->end);
+
 }
 
 void sum_contributions(Cell *cells, Particle *gather){
