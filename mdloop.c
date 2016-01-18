@@ -29,17 +29,10 @@ void Mdloop(world_rank){
     MPI_Gather(particlelist, size, MPI_BYTE, gather, size, MPI_BYTE, 0, MPI_COMM_WORLD);
 
     if (world_rank == 0){
-
-      
-      // printf("indeces\n");
-      // for(m = 0; m<2; m++){
-      //   printf("%d %d\n", cells[m].start, cells[m].end);
-      // }
-
-
         sum_contributions(&cells, gather);
         gnuprint(gp);
         displace_particles();
+        ClearForces();
     }
 
     free(gather);

@@ -7,7 +7,7 @@ void Initialize (){
   for (i=0;i<NUMBER_OF_PARTICLES;i++){
 
     (particlelist + i)->position.x = 0.95 + i/30.0;
-    (particlelist + i)->position.y = 0.5;
+    (particlelist + i)->position.y = 0.95 + i/30.0;
 
     // (particlelist + i)->position.x = RandomNumber() * GRIDSIZE;
     // (particlelist + i)->position.y = RandomNumber() * GRIDSIZE;

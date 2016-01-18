@@ -56,6 +56,7 @@ void loopforces(Cell *cells, int world_rank);
 void sum_contributions(Cell *cells, Particle *gather);
 void gnuprint(FILE *gp);
 void displace_particles();
+void ClearForces();
 
 // globals
 extern int TEMPERATURE;
