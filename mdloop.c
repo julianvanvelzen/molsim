@@ -3,11 +3,12 @@
 void Mdloop(world_rank){
   int i,j,k,l,m;
   double size;
+  Vector dF;
+  double dE;
   FILE * gp = popen ("gnuplot -persist", "w");
 
   Cell cells[NUMBER_OF_PROCESSORS];
   Particle *gather;
-  gather = malloc(sizeof(Particle) * NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS );
  
   for (i = 0; i < NUMBER_OF_PROCESSORS; i++)
     getNearbyCoordinates(&cells, i);
@@ -22,13 +23,26 @@ void Mdloop(world_rank){
 
     loopforces(&cells, world_rank);
 
+    if (world_rank == 0)
+      gather = malloc(sizeof(Particle) * NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS );
+
     MPI_Gather(particlelist, size, MPI_BYTE, gather, size, MPI_BYTE, 0, MPI_COMM_WORLD);
 
     if (world_rank == 0){
+
+      
+      // printf("indeces\n");
+      // for(m = 0; m<2; m++){
+      //   printf("%d %d\n", cells[m].start, cells[m].end);
+      // }
+
+
         sum_contributions(&cells, gather);
         gnuprint(gp);
         displace_particles();
     }
+
+    free(gather);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -37,5 +51,5 @@ void Mdloop(world_rank){
     if (world_rank == 0)
         qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
   }
-  free(gather);
+  
 }

@@ -3,12 +3,14 @@
 void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE){
 	double distance = VectorDistance(v1, v2);
 	Vector v3;
-	if (distance > RCUT) return;
+	if (distance > RCUT){ 
+    return;
+  }
 	v3.x = (v1.x - v2.x)/distance;
 	v3.y = (v1.y - v2.y)/distance;
 	*dE  = REPULSION_CST*SQR(distance-RCUT)/SQR(RCUT);
-	dF->x = (2*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.x;
-	dF->y = (2*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.y;
+	dF->x = (2.0*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.x;
+	dF->y = (2.0*REPULSION_CST*(distance-RCUT)/SQR(RCUT))*v3.y;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -19,8 +21,8 @@ Vector VectorAddition(Vector v1, Vector v2){
 }
 
 Vector VectorFlip(Vector vector){
-  vector.x *= -1;
-  vector.y *= -1;
+  vector.x = -vector.x;
+  vector.y = -vector.y;
   return vector;
 }
 
@@ -110,15 +112,19 @@ void setindeces(Particle *particlelist, Cell *cells){
       i++;
     }
     (cells+currentcell)->end = i;
-    currentcell++;
-
-
+    
     if(i >= NUMBER_OF_PARTICLES){
-      for(j=currentcell;j<NUMBER_OF_PROCESSORS;j++){
-        (cells+j)->start = NUMBER_OF_PARTICLES;
-        (cells+j)->end   = NUMBER_OF_PARTICLES;
+
+      (cells+currentcell)->end = NUMBER_OF_PARTICLES+1;
+
+      for(j=currentcell+1;j<NUMBER_OF_PROCESSORS;j++){
+        (cells+j)->start = NUMBER_OF_PARTICLES+1;
+        (cells+j)->end   = NUMBER_OF_PARTICLES+1;
       }
+
     }
+
+    currentcell++;
   }
 }
 
@@ -128,44 +134,55 @@ void loopforces(Cell *cells, int world_rank){
   double dE;
 
   // loop over all particles in your own cell
-  for(i = (cells + world_rank)->start; i < (cells + world_rank)->end; i++){
-    (particlelist + i)->force.x = 0;
-    (particlelist + i)->force.y = 0;
+  for(i = (cells + world_rank)->start; i < (cells + world_rank)->end-1; i++){
 
       // loop over all other particles in your own cell
-      for(k = (cells + world_rank)->start; k < MIN((cells + world_rank)->end, NUMBER_OF_PARTICLES); k++){
+      k = (cells + world_rank)->start;
+      do {
+          k++;
           if(k <= i)
               continue;
+
           dF.x = 0;
           dF.y = 0;
-
           ForceEnergy((particlelist + i)->position, (particlelist + k)->position,&dF,&dE);
+          (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));     
+          (particlelist + k)->force = VectorAddition((particlelist + k)->force, dF); 
 
-          (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
-          (particlelist + k)->force = VectorAddition((particlelist + k)->force, VectorFlip(dF));
-      }
+          printf("i %d, k %d if %lf kf %lf \n", i, k, (particlelist + i)->force.x, (particlelist + k)->force.x);
+
+      } while (k < (cells + world_rank)->end-2);
 
       // loop over all particles in neighbouring cells
-      for (l=0; l<5; l++){    
-          for (m = (cells + (cells + world_rank)->neighbouringcells[l])->start; m < (cells + (cells + world_rank)->neighbouringcells[l])->end; m++){
-              dF.x = 0;
-              dF.y = 0;
-              ForceEnergy(particlelist[i].position, particlelist[m].position,&dF,&dE);
-              (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);
-              (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));
-          }
-      } 
+      // for (l=0; l<=4; l++){
+      //     for (m = (cells + (cells+world_rank)->neighbouringcells[l])->start; m < (cells + (cells + world_rank)->neighbouringcells[l])->end-1; m++){
+      //         dF.x = 0;
+      //         dF.y = 0;
+      //         ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
+      //         (particlelist + i)->force = VectorAddition((particlelist + i)->force, VectorFlip(dF));
+      //         (particlelist + m)->force = VectorAddition((particlelist + i)->force, dF);
+      //     }
+      // } 
   }
 }
 
 void sum_contributions(Cell *cells, Particle *gather){
-  int k,j;
+  int k,j,offset, box;
+  Particle sum;
 
   for (k = 0; k < NUMBER_OF_PARTICLES; k++){
-      for (j = 0; j < 8; j++){
-        (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*(cells+(particlelist+k)->cellnumber)->neighbouringcells[j] + k)->force ); 
-          // (particlelist + k)->force = VectorAddition( (particlelist + k)->force, (gather+NUMBER_OF_PARTICLES*cells[(particlelist+k)->cellnumber].neighbouringcells[j] + k)->force );  
+      sum.force.x = 0;
+      sum.force.y = 0;
+
+      for (j = 0; j < 8 ; j++){
+        offset = (cells+((particlelist+k)->cellnumber))->neighbouringcells[j];
+        sum.force.x += (gather + (NUMBER_OF_PARTICLES*offset) + k)->force.x;
+        
+        // sum.force.y += (gather+(NUMBER_OF_PARTICLES*(cells+((particlelist+k)->cellnumber))->neighbouringcells[j]) + k)->force.y;
       }
+      box = (particlelist+k)->cellnumber;
+      (particlelist+k)->force.x = (gather + (NUMBER_OF_PARTICLES*box) + k)->force.x + sum.force.x;
+      (particlelist+k)->force.y = (gather + (NUMBER_OF_PARTICLES*box) + k)->force.y + sum.force.y;
   }
 }
 
@@ -207,11 +224,18 @@ void displace_particles(){
     x = (particlelist + i)->position.x;
     y = (particlelist + i)->position.y;
 
-    printf("%lf\n", (particlelist + i)->force.y);
 
     // update positions
-    x += (particlelist + i)->velocity.x * DELTAT/* + (particlelist + i)->force.x * SQR(DELTAT)*/;
-    y += (particlelist + i)->velocity.y * DELTAT/* + (particlelist + i)->force.y * SQR(DELTAT)*/;
+    x += (particlelist + i)->velocity.x * DELTAT + 0.5*(particlelist + i)->force.x * SQR(DELTAT);
+    y += (particlelist + i)->velocity.y * DELTAT + 0.5*(particlelist + i)->force.y * SQR(DELTAT);
+
+    (particlelist + i)->velocity.x += (particlelist + i)->force.x * DELTAT;
+    (particlelist + i)->velocity.y += (particlelist + i)->force.y * DELTAT;
+
+    // if(i == 1){
+    //   printf("box: %d v: %lf f: %lf\n", (particlelist+1)->cellnumber, (particlelist)->velocity.x, (particlelist)->force.x );
+    //   sleep(1);
+    // }
 
     // check for pbc
     if( y > GRIDSIZE )
@@ -230,5 +254,12 @@ void displace_particles(){
     (particlelist + i)->position.y = y;
 
     AssignCellnumber(i);
+
   }
+
+  for(i = 0; i<NUMBER_OF_PARTICLES; i++){
+    (particlelist + i)->force.x = 0;
+    (particlelist + i)->force.y = 0;
+  }
+
 }
