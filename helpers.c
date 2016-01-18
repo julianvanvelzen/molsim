@@ -135,12 +135,11 @@ void loopforces(Cell *cells, int world_rank){
   double dE;
 
 
-  // loop over all particles in your own cell
+    // loop over all particles in your own cell
     i = (cells + world_rank)->start;
     do {
-        if(i == (cells + world_rank)->end)
-            continue;
-
+      if(i == (cells + world_rank)->end)
+        continue;
 
       // loop over all other particles in your own cell
       k = (cells + world_rank)->start;
@@ -163,37 +162,30 @@ void loopforces(Cell *cells, int world_rank){
 
         m = (cells + (cells+world_rank)->neighbouringcells[l])->start;
         do{
-            if (l == 0 || l == 1)
-              if ((cells+world_rank)->neighbouringcells[l] < GRIDSIZE){
-                (particlelist + i)->position.y -= GRIDSIZE;
+          if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE)
+            (particlelist + i)->position.y -= GRIDSIZE;
+          if ((l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)
+            (particlelist + i)->position.x -= GRIDSIZE;
+          
 
-              }
-            if (l >= 1){
-              if ((cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)
-                (particlelist + i)->position.x -= GRIDSIZE;
-            }
+          dF.x = 0;
+          dF.y = 0;
 
-            dF.x = 0;
-            dF.y = 0;
+          ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
+          (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);     
+          (particlelist + m)->force = VectorAddition((particlelist + m)->force, VectorFlip(dF)); 
 
-            ForceEnergy((particlelist + i)->position, (particlelist + m)->position,&dF,&dE);
-            (particlelist + i)->force = VectorAddition((particlelist + i)->force, dF);     
-            (particlelist + m)->force = VectorAddition((particlelist + m)->force, VectorFlip(dF)); 
-
-            if (l == 0 || l == 1){
-              if ((cells+world_rank)->neighbouringcells[l] < GRIDSIZE)
-                (particlelist + i)->position.y += GRIDSIZE;
-            }
-            if (l >= 1){
-              if ((cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)
-                (particlelist + i)->position.x += GRIDSIZE;
-            }
-            m++;
-          } while (m < (cells + (cells + world_rank)->neighbouringcells[l])->end-1);
-        }
+          if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE)
+              (particlelist + i)->position.y += GRIDSIZE;              
+          if ((l >= 1) && (cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)
+            (particlelist + i)->position.x += GRIDSIZE;
+        
+          m++;
+        } while (m < (cells + (cells + world_rank)->neighbouringcells[l])->end-1);
+      }
 
     i++;
-  } while (i < (cells + world_rank)->end);
+  } while (i < ((cells + world_rank)->end - 1));
 
 }
 
