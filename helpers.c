@@ -291,5 +291,5 @@ void displace_particles(){
 }
 
 void clean_exit_on_sig(int sig_num){
-  printf ("\n Signal %d received",sig_num);
+  // printf ("\n Signal %d received",sig_num);
 }

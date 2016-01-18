@@ -8,7 +8,7 @@ set NUMBER_OF_PARTICLES   = 100
 set RCUT                  = 0.5
 set REPULSIVE_CST         = 250
 set GRIDSIZE              = 3
-set DEBUG                 = valgrin
+set DEBUG                 = f
 
 clear
 
