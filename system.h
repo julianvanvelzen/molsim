@@ -5,6 +5,7 @@
 #include <math.h>
 #include "ran_uniform.h"
 #include <unistd.h>
+#include <signal.h>
 
 // constants
 #define MAX_NUMBER_OF_PARTICLES 100
@@ -56,6 +57,7 @@ void sum_contributions(Cell *cells, Particle *gather);
 void gnuprint(FILE *gp);
 void displace_particles();
 void ClearForces();
+void clean_exit_on_sig(int sig_num);
 
 // globals
 extern int TEMPERATURE;

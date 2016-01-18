@@ -172,7 +172,7 @@ void loopforces(Cell *cells, int world_rank){
               if ((cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)
                 (particlelist + i)->position.x -= GRIDSIZE;
             }
-                
+
             dF.x = 0;
             dF.y = 0;
 
@@ -288,4 +288,8 @@ void displace_particles(){
 
   }
 
+}
+
+void clean_exit_on_sig(int sig_num){
+  printf ("\n Signal %d received",sig_num);
 }

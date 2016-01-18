@@ -31,7 +31,6 @@ int main(int argc, char** argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
 
-
   // initialize particles
   if(world_rank==0){
     Initialize();
@@ -57,6 +56,8 @@ int main(int argc, char** argv) {
     printf("Time elapsed: %fms\n", (endwtime-startwtime)*1000);
   }
 
+  // signal(SIGSEGV, clean_exit_on_sig); 
+  printf("Processor %d is klaar!\n", world_rank );
   MPI_Finalize();
 
 }
