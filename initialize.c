@@ -16,7 +16,8 @@ void Initialize (){
     AssignCellnumber(i);
   }
 
-  // a single double loop is necessary in initialisation to determine the forces during the first timestep
+  // one double loop over all particles is necessary in initialisation 
+  // to determine the forces during the first timestep
   for (i = 0; i < NUMBER_OF_PARTICLES-1; i++)
   {
     for(j = i + 1; j < NUMBER_OF_PARTICLES; j++)
@@ -24,6 +25,9 @@ void Initialize (){
       ForceEnergy((particlelist + i)->position, (particlelist + j)->position, &forceVector, &dE);
       (particlelist + i)->force[0] = VectorAddition((particlelist + i)->force[0], forceVector);     
       (particlelist + j)->force[0] = VectorAddition((particlelist + j)->force[0], VectorMultiplication(forceVector, -1));
+      
+      (particlelist + i)->potential += dE;
+      (particlelist + j)->potential += dE;
     }
     (particlelist + i)->force[1].x = 0.0;
     (particlelist + i)->force[1].y = 0.0;

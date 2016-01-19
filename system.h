@@ -29,7 +29,8 @@ typedef struct {
 	Vector force[2];
 
 	int cellnumber;
-	double  radial_distribution;
+	double potential;
+	double radial_distribution;
 } Particle;
 
 typedef struct {
