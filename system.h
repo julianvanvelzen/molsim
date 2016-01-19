@@ -56,6 +56,7 @@ void AssignCellnumber(int Particlenumber);
 void loopforces(Cell *cells, int world_rank);
 void sum_contributions(Cell *cells, Particle *gather);
 void gnuprint(FILE *gp);
+void ApplyNewForces();
 void displace_particles();
 void clean_exit_on_sig(int sig_num);
 
