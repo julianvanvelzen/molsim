@@ -26,13 +26,13 @@ void Mdloop(world_rank){
 
     MPI_Gather(particlelist, size, MPI_BYTE, gather, size, MPI_BYTE, 0, MPI_COMM_WORLD);
 
-    MPI_Barrier(MPI_COMM_WORLD);
-
     if (world_rank == 0){
         sum_contributions(&cells, gather);
-        // gnuprint(gp);
         displace_particles();
         ClearForces();
+    }
+    if (world_rank == 1){
+        gnuprint(gp);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -42,7 +42,5 @@ void Mdloop(world_rank){
     if (world_rank == 0)
         qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
   }
-  // free(gather);
-  // free(gp);
-  
+  free(gather);  
 }
