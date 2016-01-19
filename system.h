@@ -22,11 +22,11 @@ typedef struct {
 } Vector;
 
 typedef struct {
-	Vector position;
-	Vector oldVelocity;
+	Vector position;	
 	Vector velocity;
 
-	Vector force;
+	// force[0] = force at previous timestep. force[1] = force at current timestep
+	Vector force[2];
 
 	int cellnumber;
 	double  radial_distribution;
@@ -41,11 +41,12 @@ typedef struct {
 } Cell;
 
 // prototypes
+void CheckInputErrors();
 void Initialize(void);
 Vector VectorAddition(Vector v1, Vector v2);
-Vector VectorFlip(Vector vector);
+Vector VectorMultiplication(Vector vector, double factor);
 Vector RanUnit(void);
-void ForceEnergy(Vector v1, Vector v2,Vector *dF, double *dE);
+void ForceEnergy(Vector v1, Vector v2,Vector *forceVector, double *dE);
 double VectorDistance(Vector v1, Vector v2);
 void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);
@@ -56,7 +57,6 @@ void loopforces(Cell *cells, int world_rank);
 void sum_contributions(Cell *cells, Particle *gather);
 void gnuprint(FILE *gp);
 void displace_particles();
-void ClearForces();
 void clean_exit_on_sig(int sig_num);
 
 // globals

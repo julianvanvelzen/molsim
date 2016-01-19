@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  CheckInputErrors();
 
   particlelist = malloc(sizeof(Particle)*NUMBER_OF_PARTICLES);
 
@@ -59,7 +60,6 @@ int main(int argc, char** argv) {
   // signal(SIGSEGV, clean_exit_on_sig); 
   printf("Processor %d is klaar!\n", world_rank );
   MPI_Finalize();
-
 }
 
 

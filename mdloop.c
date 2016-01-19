@@ -8,8 +8,7 @@ void Mdloop(world_rank){
 
   Cell cells[NUMBER_OF_PROCESSORS];
  
-  for (i = 0; i < NUMBER_OF_PROCESSORS; i++)
-    getNearbyCoordinates(&cells, i);
+  for (i = 0; i < NUMBER_OF_PROCESSORS; i++) getNearbyCoordinates(&cells, i);
 
   Particle *gather;
   FILE * gp = popen ("gnuplot -persist", "w");
@@ -17,6 +16,8 @@ void Mdloop(world_rank){
 
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 
@@ -29,18 +30,10 @@ void Mdloop(world_rank){
     if (world_rank == 0){
         sum_contributions(&cells, gather);
         displace_particles();
-        ClearForces();
-    }
-    if (world_rank == 1){
-        gnuprint(gp);
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
-
-    if (world_rank == 0)
         qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
+    }
+    if (world_rank == 1) gnuprint(gp);
+
   }
   free(gather);  
 }
