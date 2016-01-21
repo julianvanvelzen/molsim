@@ -178,7 +178,7 @@ void loopforces(Cell *cells, int world_rank){
           if (m >= (cells + (cells+world_rank)->neighbouringcells[l])->end) break;
 
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y -= GRIDSIZE;
-          if ((l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)       (particlelist + i)->position.x -= GRIDSIZE;
+          if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)      (particlelist + i)->position.x -= GRIDSIZE;
 
           ForceEnergy((particlelist + i)->position, (particlelist + m)->position, &forceVector, &dE);
           (particlelist + i)->force[1] = VectorAddition((particlelist + i)->force[1], forceVector);     
@@ -188,7 +188,7 @@ void loopforces(Cell *cells, int world_rank){
           (particlelist + m)->potential += dE;
 
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y += GRIDSIZE;              
-          if ((l >= 1) && (cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)        (particlelist + i)->position.x += GRIDSIZE;
+          if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)       (particlelist + i)->position.x += GRIDSIZE;
         }
       }
   }
@@ -245,7 +245,7 @@ void AssignCellnumber(int ParticleIndex){
 void ApplyNewForces(){
 	int i;
 	double kinetic_energy = 0, potential_energy = 0;
-	for(i =0 ; i < NUMBER_OF_PARTICLES; i++)
+	for(i = 0; i < NUMBER_OF_PARTICLES; i++)
 	{
 		(particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorMultiplication((particlelist + i)->force[1], (0.5*DELTAT)));
 

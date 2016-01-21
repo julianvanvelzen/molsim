@@ -13,7 +13,7 @@
 #define MAX_COLLUMNS 3
 #define SQR(x) ((x)*(x))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#define DELTAT 0.001
+#define DELTAT 0.0005
 
 // Structs
 typedef struct {
