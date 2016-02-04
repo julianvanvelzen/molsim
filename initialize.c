@@ -29,7 +29,9 @@ void Initialize (){
       (particlelist + i)->potential += dE;
       (particlelist + j)->potential += dE;
     }
-    (particlelist + i)->force[1].x = 0.0;
+  }
+  for (i = 0; i < NUMBER_OF_PARTICLES; i++){
     (particlelist + i)->force[1].y = 0.0;
+    (particlelist + i)->force[1].x = 0.0;
   }
 }

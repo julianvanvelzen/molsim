@@ -2,7 +2,7 @@ CC          = mpicc
 CLINKER     = mpicc
 
 CFLAGS      = -Wall -O4 -g -w
-LIBS        = -lm
+LIBS        = -lm 
 DEPEND		= makedepend
 
 SRC     = pdm.c ran_uniform.c initialize.c helpers.c mdloop.c

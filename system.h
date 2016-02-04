@@ -6,6 +6,7 @@
 #include "ran_uniform.h"
 #include <unistd.h>
 #include <signal.h>
+#include <jansson.h>
 
 // constants
 #define MAX_NUMBER_OF_PARTICLES 100
@@ -38,7 +39,6 @@ typedef struct {
   int end;
   int totalcount;
   int neighbouringcells[8];
-  int world_rank;
 } Cell;
 
 // prototypes
@@ -60,6 +60,10 @@ void gnuprint(FILE *gp);
 void ApplyNewForces();
 void displace_particles();
 void clean_exit_on_sig(int sig_num);
+char* VECTOR_DUMP(Vector d);
+char* PARTICLE_DUMP(Particle d);
+char* CELL_DUMP(Cell d);
+char* INT_ARRAY_DUMP(int length, int data[]  );
 
 // globals
 extern int TEMPERATURE;

@@ -3,7 +3,7 @@
 
 set NUMBER_OF_PROCESSORS  = 9
 set TEMPERATURE           = 2
-set NUMBER_OF_CYCLES      = 10000
+set NUMBER_OF_CYCLES      = 10
 set NUMBER_OF_PARTICLES   = 100
 set RCUT                  = 0.5
 set REPULSIVE_CST         = 50
@@ -11,6 +11,8 @@ set GRIDSIZE              = 3
 set DEBUG                 = f
 
 clear
+make clean
+make
 
 
 if ($DEBUG == 'GDB') then

@@ -68,6 +68,8 @@ Vector RanUnit(void){
 }
 
 void getNearbyCoordinates(Cell *cells, int currentPosition){
+  (cells+currentPosition)->totalcount = 0;
+
   (cells+currentPosition)->neighbouringcells[0] = currentPosition + GRIDSIZE;
   (cells+currentPosition)->neighbouringcells[1] = currentPosition + GRIDSIZE + 1;
   (cells+currentPosition)->neighbouringcells[2] = currentPosition + 1;
@@ -140,17 +142,28 @@ void setindeces(Particle *particlelist, Cell *cells){
   }
 }
 
+// void loopforces(Cell *cells, int world_rank){
+//   int i,k,l,m;
+//   Vector forceVector;
+//   double dE;
+
+//   // loop over own cells
+//   for(i = (cells + world_rank)->start; i < (cells + world_rank)->start; i++ ){
+
+//   }  
+// }
+
+
 void loopforces(Cell *cells, int world_rank){
   int i,k,l,m;
   Vector forceVector;
   double dE;
-
     // loop over all particles in your own cell
     i = (cells + world_rank)->start-1;
     while(1) 
     {
       i++;
-      if(i == (cells + world_rank)->end) break;
+      if(i == (cells + world_rank)->end || i == NUMBER_OF_PARTICLES) break;
 
       // loop over all other particles in your own cell
       k = i;
@@ -174,8 +187,12 @@ void loopforces(Cell *cells, int world_rank){
         m = (cells + (cells+world_rank)->neighbouringcells[l])->start-1;
         while (1)
         {
-   		  m++;
-          if (m >= (cells + (cells+world_rank)->neighbouringcells[l])->end) break;
+          m++;
+
+          if (m >= (cells + (cells+world_rank)->neighbouringcells[l])->end || m == NUMBER_OF_PARTICLES) break;
+
+          if (m > NUMBER_OF_PARTICLES)
+            printf("m is groter dan NUMBER_OF_PARTICLES %d\n",m);
 
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y -= GRIDSIZE;
           if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)      (particlelist + i)->position.x -= GRIDSIZE;
@@ -256,7 +273,7 @@ void ApplyNewForces(){
 		kinetic_energy   += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
 		potential_energy += (particlelist + i)->potential;
 	}
-	printf("kinetic energy: %lf, potential energy: %lf, sum: %lf\n", kinetic_energy, potential_energy, kinetic_energy+potential_energy);
+	// printf("kinetic energy: %lf, potential energy: %lf, sum: %lf\n", kinetic_energy, potential_energy, kinetic_energy+potential_energy);
 }
 
 void displace_particles(){
@@ -285,4 +302,59 @@ void displace_particles(){
 
 void clean_exit_on_sig(int sig_num){
   // printf ("\n Signal %d received",sig_num);
+}
+
+
+char* VECTOR_DUMP(Vector d){ 
+  char str[100];
+  sprintf(str, "x: %lf y: %lf", d.x, d.y );
+  return &str;
+}
+
+char* PARTICLE_DUMP(Particle d){ 
+  char str[800];
+  sprintf(str, "\
+              position: %s\n \
+              Velocity: %s\n \
+              Force t0: %s\n \
+              Force t1: %s\n \
+              cellnumber: %d\n \
+              potential: %lf\n \
+              radial_distribution: %lf", \
+              VECTOR_DUMP(d.position), \
+              VECTOR_DUMP(d.velocity), \
+              VECTOR_DUMP(d.force[0]), \
+              VECTOR_DUMP(d.force[1]), \
+              d.cellnumber, \ 
+              d.potential, \ 
+              d.radial_distribution );
+
+  return &str;
+}
+
+char* INT_ARRAY_DUMP(int length, int data[]  ){
+  char str[length];
+  char buf[10];
+  int i;
+
+  for (i = 0; i < length; i++) {
+    sprintf(buf, "%d", data[i]); 
+    strcat(str, buf);
+  }  
+  return &str;
+}
+
+char* CELL_DUMP(Cell d){ 
+  char str[800];
+  sprintf(str, "\n\
+               start              %d\n \
+              end                %d\n \
+              totalcount         %d\n \
+              neighbouringcells  %s\n\n", \              
+              d.start, \
+              d.end, \
+              d.totalcount, \
+              INT_ARRAY_DUMP(8, d.neighbouringcells) );
+  fflush;
+  return &str;
 }
