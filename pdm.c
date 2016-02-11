@@ -34,9 +34,9 @@ int main(int argc, char** argv) {
 
   // initialize particles
   if(world_rank==0){
+    startwtime = MPI_Wtime();
     Initialize();
     qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
-    startwtime = MPI_Wtime();
 
     printf("argc:                 %d\
           \nNUMBER_OF_PROCESSORS: %d\
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
   if(world_rank==0) {
     endwtime = MPI_Wtime();
-    printf("Time elapsed: %fms\n", (endwtime-startwtime)*1000);
+    printf("\n\nworld rank %d\nTime elapsed: %fms\n",world_rank, (endwtime-startwtime)*1000);
   }
 
   // signal(SIGSEGV, clean_exit_on_sig); 

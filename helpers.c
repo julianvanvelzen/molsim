@@ -142,17 +142,6 @@ void setindeces(Particle *particlelist, Cell *cells){
   }
 }
 
-// void loopforces(Cell *cells, int world_rank){
-//   int i,k,l,m;
-//   Vector forceVector;
-//   double dE;
-
-//   // loop over own cells
-//   for(i = (cells + world_rank)->start; i < (cells + world_rank)->start; i++ ){
-
-//   }  
-// }
-
 
 void loopforces(Cell *cells, int world_rank){
   int i,k,l,m;
@@ -255,25 +244,43 @@ void gnuprint(FILE *gp){
   fprintf(gp, "e\n");
 }
 
+void HistPrint(FILE *gp, int i){
+  int j;
+
+  // char options[200] = "unset autoscale\nset yrange [30000:40000]\nset xrange[0:100]\nset style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
+  char options[200] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
+
+  printf("%d\n", i);
+  fprintf(gp, options);
+
+  for (j=0; j<i; j+=20) fprintf(gp, "%d %g\n", j , potential_energy[j] );
+
+
+  fflush(gp);
+  fprintf(gp, "e\n");
+}
+
 void AssignCellnumber(int ParticleIndex){
   (particlelist + ParticleIndex)->cellnumber = (int)(particlelist + ParticleIndex)->position.x + GRIDSIZE*(int)(particlelist + ParticleIndex)->position.y;
 }
 
-void ApplyNewForces(){
+void ApplyNewForces(int cycle){
 	int i;
-	double kinetic_energy = 0, potential_energy = 0;
+	double Ek = 0;
+  double Ev = 0;
 	for(i = 0; i < NUMBER_OF_PARTICLES; i++)
 	{
 		(particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorMultiplication((particlelist + i)->force[1], (0.5*DELTAT)));
 
 		(particlelist + i)->force[0] = (particlelist + i)->force[1];
 		(particlelist + i)->force[1].x = 0;
-	    (particlelist + i)->force[1].y = 0;
+	  (particlelist + i)->force[1].y = 0;
 
-		kinetic_energy   += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
-		potential_energy += (particlelist + i)->potential;
+		Ek   += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
+		Ev += (particlelist + i)->potential;
 	}
-	// printf("kinetic energy: %lf, potential energy: %lf, sum: %lf\n", kinetic_energy, potential_energy, kinetic_energy+potential_energy);
+  potential_energy[cycle] = Ev;
+	// printf("kinetic energy: %lf, potential energy: %lf, sum: %lf\n", Ek, Ev, Ek+Ev);
 }
 
 void displace_particles(){
