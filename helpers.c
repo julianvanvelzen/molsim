@@ -20,24 +20,28 @@ void CheckInputErrors(){
   }
   if(Error == 1){
     printf("\n");
-    exit(1);
+    exit(0);
   }
 }
 
-void ForceEnergy(Vector v1, Vector v2,Vector *forceVector, double *dE){
+void ForceEnergy(Vector v1, Vector v2,Vector *forceVector, double *dE, double *dP){
   double distance = VectorDistance(v1, v2);
   forceVector->x = 0;
   forceVector->y = 0;
   *dE = 0;
+  *dP = 0;
+
   if (distance > RCUT) return;
-
+  double force = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT));
   Vector v3;
-	v3.x = (v1.x - v2.x)/distance;
-	v3.y = (v1.y - v2.y)/distance;
-	*dE  = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
+	v3.x = (v1.x - v2.x);
+	v3.y = (v1.y - v2.y);
 
-	forceVector->x = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT))*v3.x;
-	forceVector->y = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT))*v3.y;
+  forceVector->x = force*v3.x/distance;
+	forceVector->y = force*v3.y/distance;
+
+  *dE = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
+  *dP = (forceVector->x*v3.x + forceVector->y*v3.y) / (2 * SQR(GRIDSIZE));
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -132,10 +136,10 @@ void setindeces(Particle *particlelist, Cell *cells){
     (cells+currentcell)->end = i;
     
     if(i >= NUMBER_OF_PARTICLES){
-      (cells+currentcell)->end = NUMBER_OF_PARTICLES+1;
+      (cells+currentcell)->end = NUMBER_OF_PARTICLES;
       for(j=currentcell+1;j<NUMBER_OF_PROCESSORS;j++){
-        (cells+j)->start = NUMBER_OF_PARTICLES+1;
-        (cells+j)->end   = NUMBER_OF_PARTICLES+1;
+        (cells+j)->start = NUMBER_OF_PARTICLES;
+        (cells+j)->end   = NUMBER_OF_PARTICLES;
       }
     }
     currentcell++;
@@ -146,13 +150,13 @@ void setindeces(Particle *particlelist, Cell *cells){
 void loopforces(Cell *cells, int world_rank){
   int i,k,l,m;
   Vector forceVector;
-  double dE;
+  double dE, dP;
     // loop over all particles in your own cell
     i = (cells + world_rank)->start-1;
     while(1) 
     {
       i++;
-      if(i == (cells + world_rank)->end || i == NUMBER_OF_PARTICLES) break;
+      if(i == (cells + world_rank)->end) break;
 
       // loop over all other particles in your own cell
       k = i;
@@ -161,12 +165,15 @@ void loopforces(Cell *cells, int world_rank){
           k++;
           if(k >= (cells + world_rank)->end) break;
 
-          ForceEnergy((particlelist + i)->position, (particlelist + k)->position, &forceVector, &dE);
+          ForceEnergy((particlelist + i)->position, (particlelist + k)->position, &forceVector, &dE, &dP);
           (particlelist + i)->force[1] = VectorAddition((particlelist + i)->force[1], forceVector);     
           (particlelist + k)->force[1] = VectorAddition((particlelist + k)->force[1], VectorMultiplication(forceVector, -1)); 
 
           (particlelist + i)->potential += dE;
           (particlelist + k)->potential += dE;
+
+          (particlelist + i)->pressure_contribution += dP;
+          (particlelist + k)->pressure_contribution += dP;
       }
 
       // loop over all neighbouring cells
@@ -178,20 +185,20 @@ void loopforces(Cell *cells, int world_rank){
         {
           m++;
 
-          if (m >= (cells + (cells+world_rank)->neighbouringcells[l])->end || m == NUMBER_OF_PARTICLES) break;
-
-          if (m > NUMBER_OF_PARTICLES)
-            printf("m is groter dan NUMBER_OF_PARTICLES %d\n",m);
+          if (m >= (cells + (cells+world_rank)->neighbouringcells[l])->end) break;
 
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y -= GRIDSIZE;
           if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)      (particlelist + i)->position.x -= GRIDSIZE;
 
-          ForceEnergy((particlelist + i)->position, (particlelist + m)->position, &forceVector, &dE);
+          ForceEnergy((particlelist + i)->position, (particlelist + m)->position, &forceVector, &dE, &dP);
           (particlelist + i)->force[1] = VectorAddition((particlelist + i)->force[1], forceVector);     
           (particlelist + m)->force[1] = VectorAddition((particlelist + m)->force[1], VectorMultiplication(forceVector, -1)); 
 
           (particlelist + i)->potential += dE;
           (particlelist + m)->potential += dE;
+
+          (particlelist + i)->pressure_contribution += dP;
+          (particlelist + m)->pressure_contribution += dP;
 
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y += GRIDSIZE;              
           if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)       (particlelist + i)->position.x += GRIDSIZE;
@@ -250,11 +257,10 @@ void HistPrint(FILE *gp, int i){
   // char options[200] = "unset autoscale\nset yrange [30000:40000]\nset xrange[0:100]\nset style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
   char options[200] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
 
-  printf("%d\n", i);
+  // printf("%d\n", i);
   fprintf(gp, options);
 
-  for (j=0; j<i; j+=20) fprintf(gp, "%d %g\n", j , potential_energy[j] );
-
+  for (j=0; j<i; j+=20) fprintf(gp, "%d %g\n", j , potential_energy_array[j] );
 
   fflush(gp);
   fprintf(gp, "e\n");
@@ -268,6 +274,7 @@ void ApplyNewForces(int cycle){
 	int i;
 	double Ek = 0;
   double Ev = 0;
+  double current_pressure = 0;
 	for(i = 0; i < NUMBER_OF_PARTICLES; i++)
 	{
 		(particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorMultiplication((particlelist + i)->force[1], (0.5*DELTAT)));
@@ -276,11 +283,15 @@ void ApplyNewForces(int cycle){
 		(particlelist + i)->force[1].x = 0;
 	  (particlelist + i)->force[1].y = 0;
 
-		Ek   += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
+		Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
 		Ev += (particlelist + i)->potential;
+    current_pressure += (particlelist + i)->pressure_contribution;
 	}
-  potential_energy[cycle] = Ev;
-	// printf("kinetic energy: %lf, potential energy: %lf, sum: %lf\n", Ek, Ev, Ek+Ev);
+  *(kinetic_energy_array + cycle) = Ek;
+  averages[0] += Ek;
+  *(potential_energy_array + cycle) = Ev;
+  averages[1] += Ev;
+  averages[2] += current_pressure;
 }
 
 void displace_particles(){
@@ -291,6 +302,7 @@ void displace_particles(){
     (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorMultiplication((particlelist + i)->force[0], (0.5*DELTAT)));
     (particlelist + i)->position = VectorAddition((particlelist + i)->position, VectorMultiplication((particlelist + i)->velocity, DELTAT));
     (particlelist + i)->potential = 0;
+    (particlelist + i)->pressure_contribution = 0;
     
     // apply pbc and assign to correct cell
     if( (particlelist + i)->position.y > GRIDSIZE ){

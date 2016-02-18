@@ -6,7 +6,6 @@
 #include "ran_uniform.h"
 #include <unistd.h>
 #include <signal.h>
-#include <jansson.h>
 
 // constants
 #define MAX_NUMBER_OF_PARTICLES 100
@@ -32,6 +31,7 @@ typedef struct {
 	int cellnumber;
 	double potential;
 	double radial_distribution;
+	double pressure_contribution;
 } Particle;
 
 typedef struct {
@@ -47,7 +47,7 @@ void Initialize(void);
 Vector VectorAddition(Vector v1, Vector v2);
 Vector VectorMultiplication(Vector vector, double factor);
 Vector RanUnit(void);
-void ForceEnergy(Vector v1, Vector v2,Vector *forceVector, double *dE);
+void ForceEnergy(Vector v1, Vector v2, Vector *forceVector, double *dE, double *dP);
 double VectorDistance(Vector v1, Vector v2);
 void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);
@@ -67,24 +67,15 @@ char* INT_ARRAY_DUMP(int length, int data[]  );
 void HistPrint(FILE *gp, int i);
 
 // globals
-extern int TEMPERATURE;
+extern double TEMPERATURE;
 extern double RCUT;
 extern double REPULSIVE_CST;
+extern double *kinetic_energy_array;
+extern double *potential_energy_array; 
+extern double averages[3]; 
+extern double pressure;
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;
 extern int NUMBER_OF_PARTICLES;
 extern int GRIDSIZE;
 extern Particle *particlelist;
-extern double kinetic_energy;
-extern double potential_energy[10000]; 
-
-int NUMBER_OF_PARTICLES;
-int NUMBER_OF_CYCLES;
-int NUMBER_OF_PROCESSORS;
-int GRIDSIZE;
-double RCUT;
-double REPULSIVE_CST;
-double kinetic_energy;
-double potential_energy[10000]; 
-int TEMPERATURE;
-Particle *particlelist;

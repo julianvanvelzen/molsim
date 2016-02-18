@@ -1,5 +1,14 @@
 #include "system.h"
 
+double TEMPERATURE;
+double RCUT;
+double REPULSIVE_CST;
+int NUMBER_OF_CYCLES;
+int NUMBER_OF_PROCESSORS;
+int NUMBER_OF_PARTICLES;
+int GRIDSIZE;
+Particle *particlelist;
+
 int main(int argc, char** argv) {
 
   // initialisation
@@ -40,7 +49,7 @@ int main(int argc, char** argv) {
 
     printf("argc:                 %d\
           \nNUMBER_OF_PROCESSORS: %d\
-          \nTEMPERATURE:          %d\
+          \nTEMPERATURE:          %lf\
           \nNUMBER_OF_CYCLES:     %d\
           \nNUMBER_OF_PARTICLES:  %d\
           \nRCUT:                 %lf\
@@ -54,7 +63,7 @@ int main(int argc, char** argv) {
 
   if(world_rank==0) {
     endwtime = MPI_Wtime();
-    printf("\n\nworld rank %d\nTime elapsed: %fms\n",world_rank, (endwtime-startwtime)*1000);
+    printf("\nTime elapsed: %fms\n",(endwtime-startwtime)*1000);
   }
 
   // signal(SIGSEGV, clean_exit_on_sig); 
