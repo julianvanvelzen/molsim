@@ -2,8 +2,6 @@
 
 void Initialize (){
   int i, j;
-  double dE, dP;
-  Vector forceVector;
 
   for (i=0;i<NUMBER_OF_PARTICLES;i++)
   {
@@ -23,11 +21,10 @@ void Initialize (){
     for(j = i + 1; j < NUMBER_OF_PARTICLES; j++)
     {
       ForceEnergy((particlelist + i), (particlelist + j));
-      (particlelist + i)->force[0] = (particlelist + i)->force[1];     
-      (particlelist + j)->force[0] = (particlelist + j)->force[1];
     }
   }
   for (i = 0; i < NUMBER_OF_PARTICLES; i++){
+    (particlelist + i)->force[0] = (particlelist + i)->force[1];  
     (particlelist + i)->force[1].y = 0.0;
     (particlelist + i)->force[1].x = 0.0;
   }

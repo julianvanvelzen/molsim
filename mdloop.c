@@ -27,6 +27,7 @@ void Mdloop(world_rank){
     gather = calloc(NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS, sizeof(Particle));
     kinetic_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
     potential_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
+
     if(gather == NULL || kinetic_energy_array == NULL || potential_energy_array == NULL){
       printf("Error during memory allocation");
       exit(0);
@@ -39,8 +40,8 @@ void Mdloop(world_rank){
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
 
     if (world_rank == 0){
-        displace_particles();
-        qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
+      displace_particles();
+      qsort(particlelist, NUMBER_OF_PARTICLES, sizeof(Particle), cmpfunc);
     }
 
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
@@ -67,14 +68,12 @@ void Mdloop(world_rank){
       ApplyNewForces(i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
-      if (i%20 == 0)
-        HistPrint(gphist, i);
+      if (i%20 == 0) HistPrint(gphist, i);
     }
+    if (world_rank == 1) gnuprint(gp);
 
-    if (world_rank == 1){
-      gnuprint(gp);
-    } 
   }
+
   if(world_rank == 0){
     for (i = 0; i<3; i++) averages[i] /= NUMBER_OF_CYCLES;
     printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2]);
