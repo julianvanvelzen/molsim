@@ -209,8 +209,6 @@ void loopforces(Cell *cells, int world_rank){
 
 void sum_contributions(Cell *cells, Particle *gather){
   int k,j, neighbour_offset, current_box_offset;
-  Particle sum;
-
   for (k = 0; k < NUMBER_OF_PARTICLES; k++)
   {
       current_box_offset = (particlelist+k)->cellnumber;
@@ -323,7 +321,7 @@ void clean_exit_on_sig(int sig_num){
   // printf ("\n Signal %d received",sig_num);
 }
 
-
+/*
 char* VECTOR_DUMP(Vector d){ 
   char str[100];
   sprintf(str, "x: %lf y: %lf", d.x, d.y );
@@ -376,4 +374,4 @@ char* CELL_DUMP(Cell d){
               INT_ARRAY_DUMP(8, d.neighbouringcells) );
   fflush;
   return &str;
-}
+}*/

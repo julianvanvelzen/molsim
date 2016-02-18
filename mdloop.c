@@ -5,17 +5,15 @@ double *kinetic_energy_array;
 double *potential_energy_array;
 
 void Mdloop(world_rank){
-  int i,j,k,l,m;
+  int i;
   double size;
-  Vector dF;
-  double dE;
   double startwtime, endwtime;
   double time1, time2, time3, time4, time5;
 
   Cell cells[NUMBER_OF_PROCESSORS];
  
   startwtime = MPI_Wtime();
-  for (i = 0; i < NUMBER_OF_PROCESSORS; i++) getNearbyCoordinates(&cells, i);
+  for (i = 0; i < NUMBER_OF_PROCESSORS; i++) getNearbyCoordinates(cells, i);
   endwtime = MPI_Wtime();
   time1 =  (endwtime-startwtime)*1000;
 
@@ -26,7 +24,7 @@ void Mdloop(world_rank){
 
   // allocate memory
   if(world_rank == 0) {
-    gather = malloc(sizeof(Particle) * NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS );   
+    gather = calloc(NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS, sizeof(Particle));
     kinetic_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
     potential_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
     if(gather == NULL || kinetic_energy_array == NULL || potential_energy_array == NULL){
@@ -48,12 +46,12 @@ void Mdloop(world_rank){
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 
     startwtime = MPI_Wtime();
-    setindeces(particlelist, &cells);
+    setindeces(particlelist, cells);
     endwtime = MPI_Wtime();
     time2 +=  (endwtime-startwtime)*1000;
 
     startwtime = MPI_Wtime();
-    loopforces(&cells, world_rank);
+    loopforces(cells, world_rank);
     endwtime = MPI_Wtime();
     time3 +=  (endwtime-startwtime)*1000;
 
@@ -65,7 +63,7 @@ void Mdloop(world_rank){
     
     if (world_rank == 0){
       startwtime = MPI_Wtime();
-      sum_contributions(&cells, gather);
+      sum_contributions(cells, gather);
       ApplyNewForces(i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;

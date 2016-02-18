@@ -13,7 +13,6 @@ int main(int argc, char** argv) {
 
   // initialisation
   InitializeRandomNumberGenerator(time(0l));
-  int i,j,k;
   int world_rank, world_size;
   double startwtime, endwtime;
   if(argc>3){
@@ -69,6 +68,7 @@ int main(int argc, char** argv) {
   // signal(SIGSEGV, clean_exit_on_sig); 
   // printf("Processor %d is klaar!\n", world_rank );
   MPI_Finalize();
+  return 0;
 }
 
 
