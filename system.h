@@ -46,9 +46,9 @@ typedef struct {
 void CheckInputErrors();
 void Initialize(void);
 Vector VectorAddition(Vector v1, Vector v2);
-Vector VectorMultiplication(Vector vector, double factor);
+Vector VectorScalar(Vector vector, double factor);
 Vector RanUnit(void);
-void ForceEnergy(Vector v1, Vector v2, Vector *forceVector, double *dE, double *dP);
+void ForceEnergy(Particle *p1, Particle *p2);
 double VectorDistance(Vector v1, Vector v2);
 void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);

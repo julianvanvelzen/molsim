@@ -24,24 +24,30 @@ void CheckInputErrors(){
   }
 }
 
-void ForceEnergy(Vector v1, Vector v2,Vector *forceVector, double *dE, double *dP){
-  double distance = VectorDistance(v1, v2);
-  forceVector->x = 0;
-  forceVector->y = 0;
-  *dE = 0;
-  *dP = 0;
-
+void ForceEnergy(Particle *p1, Particle *p2){
+  double distance = VectorDistance(p1->position, p2->position);
   if (distance > RCUT) return;
+  
   double force = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT));
-  Vector v3;
-	v3.x = (v1.x - v2.x);
-	v3.y = (v1.y - v2.y);
+  
+  Vector relative_position;
+  relative_position.x = (p1->position.x - p2->position.x);
+	relative_position.y = (p1->position.y - p2->position.y);
 
-  forceVector->x = force*v3.x/distance;
-	forceVector->y = force*v3.y/distance;
+  Vector forceVector;
+  forceVector.x = force*relative_position.x/distance;
+  forceVector.y = force*relative_position.y/distance;
 
-  *dE = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
-  *dP = (forceVector->x*v3.x + forceVector->y*v3.y) / (2 * SQR(GRIDSIZE));
+  p1->force[1] = VectorAddition(p1->force[1], forceVector);     
+  p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1)); 
+
+  double potential = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
+  p1->potential += potential;
+  p2->potential += potential;
+
+  double pressure = (forceVector.x*relative_position.x + forceVector.y*relative_position.y) / (2 * SQR(GRIDSIZE));
+  p1->pressure_contribution += pressure;
+  p2->pressure_contribution += pressure;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -51,7 +57,7 @@ Vector VectorAddition(Vector v1, Vector v2){
   return v3;
 }
 
-Vector VectorMultiplication(Vector vector, double factor){
+Vector VectorScalar(Vector vector, double factor){
   vector.x *= factor;
   vector.y *= factor;
   return vector;
@@ -149,8 +155,7 @@ void setindeces(Particle *particlelist, Cell *cells){
 
 void loopforces(Cell *cells, int world_rank){
   int i,k,l,m;
-  Vector forceVector;
-  double dE, dP;
+
     // loop over all particles in your own cell
     i = (cells + world_rank)->start-1;
     while(1) 
@@ -164,16 +169,7 @@ void loopforces(Cell *cells, int world_rank){
       {
           k++;
           if(k >= (cells + world_rank)->end) break;
-
-          ForceEnergy((particlelist + i)->position, (particlelist + k)->position, &forceVector, &dE, &dP);
-          (particlelist + i)->force[1] = VectorAddition((particlelist + i)->force[1], forceVector);     
-          (particlelist + k)->force[1] = VectorAddition((particlelist + k)->force[1], VectorMultiplication(forceVector, -1)); 
-
-          (particlelist + i)->potential += dE;
-          (particlelist + k)->potential += dE;
-
-          (particlelist + i)->pressure_contribution += dP;
-          (particlelist + k)->pressure_contribution += dP;
+          ForceEnergy((particlelist + i), (particlelist + k));
       }
 
       // loop over all neighbouring cells
@@ -184,21 +180,13 @@ void loopforces(Cell *cells, int world_rank){
         while (1)
         {
           m++;
-
           if (m >= (cells + (cells+world_rank)->neighbouringcells[l])->end) break;
 
+          // apply periodic boundary conditions
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y -= GRIDSIZE;
           if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)      (particlelist + i)->position.x -= GRIDSIZE;
 
-          ForceEnergy((particlelist + i)->position, (particlelist + m)->position, &forceVector, &dE, &dP);
-          (particlelist + i)->force[1] = VectorAddition((particlelist + i)->force[1], forceVector);     
-          (particlelist + m)->force[1] = VectorAddition((particlelist + m)->force[1], VectorMultiplication(forceVector, -1)); 
-
-          (particlelist + i)->potential += dE;
-          (particlelist + m)->potential += dE;
-
-          (particlelist + i)->pressure_contribution += dP;
-          (particlelist + m)->pressure_contribution += dP;
+          ForceEnergy((particlelist + i), (particlelist + m));
 
           if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) (particlelist + i)->position.y += GRIDSIZE;              
           if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] %GRIDSIZE == 0)       (particlelist + i)->position.x += GRIDSIZE;
@@ -275,7 +263,7 @@ void ApplyNewForces(int cycle){
   double current_pressure = 0;
 	for(i = 0; i < NUMBER_OF_PARTICLES; i++)
 	{
-		(particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorMultiplication((particlelist + i)->force[1], (0.5*DELTAT)));
+		(particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[1], (0.5*DELTAT)));
 
 		(particlelist + i)->force[0] = (particlelist + i)->force[1];
 		(particlelist + i)->force[1].x = 0;
@@ -297,8 +285,8 @@ void displace_particles(){
   for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {    
     // Velocity Verlet. force[0] = force at previous timestep. force[1] = force at current timestep.
-    (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorMultiplication((particlelist + i)->force[0], (0.5*DELTAT)));
-    (particlelist + i)->position = VectorAddition((particlelist + i)->position, VectorMultiplication((particlelist + i)->velocity, DELTAT));
+    (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[0], (0.5*DELTAT)));
+    (particlelist + i)->position = VectorAddition((particlelist + i)->position, VectorScalar((particlelist + i)->velocity, DELTAT));
     (particlelist + i)->potential = 0;
     (particlelist + i)->pressure_contribution = 0;
     

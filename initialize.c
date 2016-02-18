@@ -22,12 +22,9 @@ void Initialize (){
   {
     for(j = i + 1; j < NUMBER_OF_PARTICLES; j++)
     {
-      ForceEnergy((particlelist + i)->position, (particlelist + j)->position, &forceVector, &dE, &dP);
-      (particlelist + i)->force[0] = VectorAddition((particlelist + i)->force[0], forceVector);     
-      (particlelist + j)->force[0] = VectorAddition((particlelist + j)->force[0], VectorMultiplication(forceVector, -1));
-      
-      (particlelist + i)->potential += dE;
-      (particlelist + j)->potential += dE;
+      ForceEnergy((particlelist + i), (particlelist + j));
+      (particlelist + i)->force[0] = (particlelist + i)->force[1];     
+      (particlelist + j)->force[0] = (particlelist + j)->force[1];
     }
   }
   for (i = 0; i < NUMBER_OF_PARTICLES; i++){
