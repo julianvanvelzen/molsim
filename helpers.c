@@ -18,6 +18,14 @@ void CheckInputErrors(){
     printf("Rcut must be higher than 0 and may not exceed 1\n");
     Error = 1;
   }
+  if(DELTAT <= 0){
+    printf("DeltaT must be higher than 0\n");
+    Error = 1;
+  }
+  if(NUMBER_OF_CYCLES <= INITIALISATION_STEPS){
+    printf("Simulation must be longer than number of initialisation steps (%d)\n", INITIALISATION_STEPS);
+    Error = 1;
+  }
   if(Error == 1){
     printf("\n");
     exit(0);
@@ -204,6 +212,7 @@ void loopforces(Cell *cells, int world_rank){
 
 void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   int i,j,k, neighbour_offset, current_box_offset;
+  double initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS);
   double Ek = 0;
   double Ev = 0;
   double current_pressure = 0;
@@ -236,13 +245,13 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
-    if(cycle > 100){
+    if(cycle > INITIALISATION_STEPS){
       for(k=0;k<21;k++){
-        // printf("%d\n", (particlelist + i)->radial_distribution[k]);
+        printf("%d\n", (particlelist + i)->radial_distribution[k]);
         rdf_total[k] += (particlelist + i)->radial_distribution[k];
         (particlelist + i)->radial_distribution[k] = 0;
       }
-      // printf("\n");
+      printf("\n");
 
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
       Ev += (particlelist + i)->potential;
@@ -250,11 +259,14 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     }
   }
 
-  *(kinetic_energy_array + cycle) = Ek;
-  averages[0] += Ek;
-  *(potential_energy_array + cycle) = Ev;
-  averages[1] += Ev;
-  averages[2] += current_pressure;
+  if (cycle > INITIALISATION_STEPS){
+    *(kinetic_energy_array + cycle) = Ek;
+    averages[0] += Ek;
+    *(potential_energy_array + cycle) = Ev;
+    averages[1] += Ev;
+    averages[2] += sqrt(SQR(initialised_sum - (Ek + Ev)))/initialised_sum;
+    averages[3] += current_pressure;
+  }
 }
 
 void gnuprint(FILE *gp){
@@ -287,7 +299,7 @@ void HistPrint(FILE *gp, int i){
   // printf("%d\n", i);
   fprintf(gp, options);
 
-  for (j=100; j<i; j+=20) fprintf(gp, "%d %g %g %g\n", j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
+  for (j=INITIALISATION_STEPS; j<i; j+=20) fprintf(gp, "%d %g %g %g\n", j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
 
   fflush(gp);
   fprintf(gp, "e\n");

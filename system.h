@@ -9,12 +9,8 @@
 #include <signal.h>
 
 // constants
-#define MAX_NUMBER_OF_PARTICLES 100
-#define MAX_ROWS 3
-#define MAX_COLLUMNS 3
+#define INITIALISATION_STEPS 100
 #define SQR(x) ((x)*(x))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#define DELTAT 0.001
 
 // Structs
 typedef struct {
@@ -70,9 +66,10 @@ void HistPrint(FILE *gp, int i);
 extern double TEMPERATURE;
 extern double RCUT;
 extern double REPULSIVE_CST;
+extern double DELTAT;
 extern double *kinetic_energy_array;
 extern double *potential_energy_array; 
-extern double averages[3]; 
+extern double averages[4]; 
 extern double pressure;
 extern long double rdf_total[21];
 extern int NUMBER_OF_CYCLES;
