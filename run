@@ -3,7 +3,7 @@
 
 set NUMBER_OF_PROCESSORS  = 9
 set TEMPERATURE           = 20
-set NUMBER_OF_CYCLES      = 800
+set NUMBER_OF_CYCLES      = 120
 set NUMBER_OF_PARTICLES   = 500
 set RCUT                  = .1
 set REPULSIVE_CST         = 10

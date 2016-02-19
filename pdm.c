@@ -57,7 +57,6 @@ int main(int argc, char** argv) {
           \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE );
   }
   
-  MPI_Barrier(MPI_COMM_WORLD);
   Mdloop(world_rank);
 
   if(world_rank==0) {

@@ -236,9 +236,11 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
 
     if(cycle > 100){
       for(k=0;k<21;k++){
+        printf("%d\n", (particlelist + i)->radial_distribution[k]);
         rdf_total[k] += (particlelist + i)->radial_distribution[k];
         (particlelist + i)->radial_distribution[k] = 0;
       }
+      printf("\n");
 
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
       Ev += (particlelist + i)->potential;
@@ -278,8 +280,7 @@ void gnuprint(FILE *gp){
 void HistPrint(FILE *gp, int i){
   int j;
 
-  // char options[200] = "unset autoscale\nset yrange [30000:40000]\nset xrange[0:100]\nset style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
-  char options[200] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nset style line 13 lc rgb '#09ad00' lt 1 lw 1.5\nset style line 8  lc rgb '#00ad88' lt 1 lw 1.5\nplot for [n=1:3] '-' with linespoints ls n\n ";
+  char options[400] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nset style line 13 lc rgb '#09ad00' lt 1 lw 1.5\nset style line 8  lc rgb '#00ad88' lt 1 lw 1.5\nplot '-' using 1:2 with linespoints, '-' using 1:3 with linespoints, '-' using 1:4 with linespoints\n ";
 
   // printf("%d\n", i);
   fprintf(gp, options);
