@@ -279,12 +279,12 @@ void HistPrint(FILE *gp, int i){
   int j;
 
   // char options[200] = "unset autoscale\nset yrange [30000:40000]\nset xrange[0:100]\nset style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
-  char options[200] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nplot '-' with linespoints ls 1\n ";
+  char options[200] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nset style line 13 lc rgb '#09ad00' lt 1 lw 1.5\nset style line 8  lc rgb '#00ad88' lt 1 lw 1.5\nplot for [n=1:3] '-' with linespoints ls n\n ";
 
   // printf("%d\n", i);
   fprintf(gp, options);
 
-  for (j=0; j<i; j+=20) fprintf(gp, "%d %g\n", j , potential_energy_array[j] );
+  for (j=0; j<i; j+=20) fprintf(gp, "%d %g %g %g\n", j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
 
   fflush(gp);
   fprintf(gp, "e\n");
