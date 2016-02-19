@@ -211,7 +211,6 @@ void loopforces(Cell *cells, int world_rank){
 
 void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   int i,j,k, neighbour_offset, current_box_offset;
-  double initialised_sum;
   double Ek = 0;
   double Ev = 0;
   double current_pressure = 0;
@@ -258,11 +257,14 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   }
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
-  if(cycle == INITIALISATION_STEPS) initialisation_sum = Ek + Ev;
+  if(cycle == INITIALISATION_STEPS){
+    initialisation_sum = Ek + Ev;
+    printf("initialisation sum: %lf\n", initialisation_sum);
+  }
   if(cycle > INITIALISATION_STEPS){
     averages[0] += Ek;
     averages[1] += Ev;
-    averages[2] += sqrt(SQR(initialised_sum - (Ek + Ev)))/initialised_sum;
+    averages[2] += sqrt(SQR(initialisation_sum - (Ek + Ev)))/initialisation_sum;
     averages[3] += current_pressure;
   }
 }
