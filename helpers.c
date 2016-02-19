@@ -212,7 +212,7 @@ void loopforces(Cell *cells, int world_rank){
 
 void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   int i,j,k, neighbour_offset, current_box_offset;
-  double initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS);
+  double initialised_sum;
   double Ek = 0;
   double Ev = 0;
   double current_pressure = 0;
@@ -245,9 +245,9 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
-    if(cycle > INITIALISATION_STEPS){
+    if(cycle > (INITIALISATION_STEPS+1)){
       for(k=0;k<21;k++){
-        printf("%d\n", (particlelist + i)->radial_distribution[k]);
+        printf("%d %d\n", cycle, (particlelist + i)->radial_distribution[k]);
         rdf_total[k] += (particlelist + i)->radial_distribution[k];
         (particlelist + i)->radial_distribution[k] = 0;
       }
@@ -259,10 +259,13 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     }
   }
 
-  if (cycle > INITIALISATION_STEPS){
-    *(kinetic_energy_array + cycle) = Ek;
+
+  *(kinetic_energy_array + cycle) = Ek;
+  *(potential_energy_array + cycle) = Ev;
+
+  if(cycle > INITIALISATION_STEPS){
+    initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS);
     averages[0] += Ek;
-    *(potential_energy_array + cycle) = Ev;
     averages[1] += Ev;
     averages[2] += sqrt(SQR(initialised_sum - (Ek + Ev)))/initialised_sum;
     averages[3] += current_pressure;
