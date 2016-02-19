@@ -54,6 +54,7 @@ void ForceEnergy(Particle *p1, Particle *p2){
   int rdf_bin_index = 20.0*distance/RCUT;
   p1->radial_distribution[rdf_bin_index]++;
   p2->radial_distribution[rdf_bin_index]++;
+  // printf("rdf %d %d %lf\n",p2->radial_distribution[rdf_bin_index],rdf_bin_index, distance );
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -210,6 +211,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {
     current_box_offset = (particlelist+i)->cellnumber;
+    // Neighbours
     for (j = 7; j >= 4 ; j--)
     {
       neighbour_offset = (cells+current_box_offset)->neighbouringcells[j];
@@ -236,11 +238,11 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
 
     if(cycle > 100){
       for(k=0;k<21;k++){
-        printf("%d\n", (particlelist + i)->radial_distribution[k]);
+        // printf("%d\n", (particlelist + i)->radial_distribution[k]);
         rdf_total[k] += (particlelist + i)->radial_distribution[k];
         (particlelist + i)->radial_distribution[k] = 0;
       }
-      printf("\n");
+      // printf("\n");
 
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
       Ev += (particlelist + i)->potential;

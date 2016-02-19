@@ -13,10 +13,6 @@ void Initialize (){
     //(particlelist + i)->velocity.y = RandomVelocity(TEMPERATURE);// 0;
     
     momentum = VectorAddition(momentum, (particlelist + i)->velocity);
-    for (j = 0; j < 21; j++)
-    {
-      (particlelist + i)->radial_distribution[j] = 0;
-    }
 
     AssignCellnumber(i);
   }
@@ -41,5 +37,7 @@ void Initialize (){
     (particlelist + i)->force[0] = (particlelist + i)->force[1];  
     (particlelist + i)->force[1].y = 0.0;
     (particlelist + i)->force[1].x = 0.0;
+    for (j = 0; j < 21; j++)
+      (particlelist + i)->radial_distribution[j] = 0;
   }
 }

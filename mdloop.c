@@ -38,6 +38,11 @@ void Mdloop(world_rank){
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
   MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 
+  for (i = 0; i < NUMBER_OF_PARTICLES; i++){
+    for (j=0;j<20;j++)
+    printf("init %d\n", (particlelist+i)->radial_distribution[j]);
+  }
+
   // main loop
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
 
@@ -69,9 +74,9 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
-      if (i%20 == 0 && i>100) HistPrint(gphist, i);
+      // if (i%20 == 0 && i>100) HistPrint(gphist, i);
     }
-    if (world_rank == 1) gnuprint(gp);
+    // if (world_rank == 1) gnuprint(gp);
 
   }
 
