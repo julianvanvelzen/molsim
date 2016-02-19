@@ -3,6 +3,7 @@
 double TEMPERATURE;
 double RCUT;
 double REPULSIVE_CST;
+double DELTAT;
 int NUMBER_OF_CYCLES;
 int NUMBER_OF_PROCESSORS;
 int NUMBER_OF_PARTICLES;
@@ -23,6 +24,7 @@ int main(int argc, char** argv) {
     RCUT                 = atof(argv[5]);
     REPULSIVE_CST        = atof(argv[6]);
     GRIDSIZE             = atoi(argv[7]);
+    DELTAT		 = atof(argv[8]);
   } else {
     printf("Not enough parameters\n");
     exit(1);
@@ -52,9 +54,10 @@ int main(int argc, char** argv) {
           \nNUMBER_OF_CYCLES:     %d\
           \nNUMBER_OF_PARTICLES:  %d\
           \nRCUT:                 %lf\
-          \nREPULSIVE_CST         %lf\
-          \nGRIDSIZE:             %d\ 
-          \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE );
+          \nREPULSIVE_CST:        %lf\
+          \nGRIDSIZE:             %d\
+	  \nDELTAT:		  %lf\ 
+          \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE, DELTAT);
   }
   
   Mdloop(world_rank);

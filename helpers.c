@@ -18,6 +18,10 @@ void CheckInputErrors(){
     printf("Rcut must be higher than 0 and may not exceed 1\n");
     Error = 1;
   }
+  if(DELTAT <= 0){
+    printf("DeltaT must be higher than 0\n");
+    Error = 1;
+  }
   if(Error == 1){
     printf("\n");
     exit(0);
