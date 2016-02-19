@@ -234,7 +234,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
-    if(cycle > 200){
+    if(cycle > 100){
       for(k=0;k<21;k++){
         rdf_total[k] += (particlelist + i)->radial_distribution[k];
         (particlelist + i)->radial_distribution[k] = 0;
@@ -284,7 +284,7 @@ void HistPrint(FILE *gp, int i){
   // printf("%d\n", i);
   fprintf(gp, options);
 
-  for (j=0; j<i; j+=20) fprintf(gp, "%d %g\n", j , potential_energy_array[j] );
+  for (j=100; j<i; j+=20) fprintf(gp, "%d %g\n", j , potential_energy_array[j] );
 
   fflush(gp);
   fprintf(gp, "e\n");

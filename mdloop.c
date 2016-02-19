@@ -68,7 +68,7 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
-      if (i%20 == 0) HistPrint(gphist, i);
+      if (i%20 == 0 && i>100) HistPrint(gphist, i);
     }
     if (world_rank == 1) gnuprint(gp);
 
@@ -81,11 +81,11 @@ void Mdloop(world_rank){
    //     printf("%lf\n", (particlelist+i)->radial_distribution[j]);
       }
     }
-    normalisation = 1.0/(NUMBER_OF_CYCLES-200);
+    normalisation = 1.0/(NUMBER_OF_CYCLES-100);
     for (i=0; i<3;  i++) averages[i] *= normalisation;
     printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2]);
     for (i=0; i<20; i++) {
-      rdf_total[i] *= normalisation/(NUMBER_OF_PARTICLES * M_PI * SQR(i*RCUT/20.0));
+      rdf_total[i] *= (1.0/(M_PI * (SQR((i+1)*RCUT/20.0)-SQR(i*RCUT/20.0)))) * normalisation/NUMBER_OF_PARTICLES;
       printf("\n%lf", rdf_total[i]);
     }
   }

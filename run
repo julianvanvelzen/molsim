@@ -4,9 +4,9 @@
 set NUMBER_OF_PROCESSORS  = 9
 set TEMPERATURE           = 2
 set NUMBER_OF_CYCLES      = 2000
-set NUMBER_OF_PARTICLES   = 50
-set RCUT                  = 1.
-set REPULSIVE_CST         = 5
+set NUMBER_OF_PARTICLES   = 500
+set RCUT                  = .1
+set REPULSIVE_CST         = 10
 set GRIDSIZE              = 3
 set DEBUG                 = f
 
