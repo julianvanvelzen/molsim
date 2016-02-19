@@ -3,7 +3,7 @@
 double averages[3] = {0, 0, 0}; // [0] = kinetic, [1] = potential, [2] = pressure  
 double *kinetic_energy_array;
 double *potential_energy_array;
-double rdf_total[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+long double rdf_total[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 void Mdloop(world_rank){
   int i, j;
@@ -68,7 +68,7 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
-      if (i%20 == 0 && i>100) HistPrint(gphist, i);
+      // if (i%20 == 0 && i>100) HistPrint(gphist, i);
     }
     if (world_rank == 1) gnuprint(gp);
 
@@ -85,8 +85,9 @@ void Mdloop(world_rank){
     for (i=0; i<3;  i++) averages[i] *= normalisation;
     printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2]);
     for (i=0; i<20; i++) {
-      rdf_total[i] *= (1.0/(M_PI * (SQR((i+1)*RCUT/20.0)-SQR(i*RCUT/20.0)))) * normalisation/NUMBER_OF_PARTICLES;
-      printf("\n%lf", rdf_total[i]);
+      printf("\nrdf total %d", rdf_total[i]);
+      rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/20.0)-SQR(i*RCUT/20.0)))) * (normalisation/NUMBER_OF_PARTICLES));
+      printf(" mpi %lf rcut20 %lf sqr-sqr%lf norm %lf rdf %lf", M_PI, (i+1)*RCUT/20.0, (SQR((i+1)*RCUT/20.0)-SQR(i*RCUT/20.0)), normalisation/NUMBER_OF_PARTICLES, rdf_total[i]);
     }
   }
   // printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );
