@@ -9,6 +9,7 @@
 #include <signal.h>
 
 // constants
+#define INITIALISATION_STEPS 100
 #define SQR(x) ((x)*(x))
 
 // Structs
@@ -68,7 +69,7 @@ extern double REPULSIVE_CST;
 extern double DELTAT;
 extern double *kinetic_energy_array;
 extern double *potential_energy_array; 
-extern double averages[3]; 
+extern double averages[4]; 
 extern double pressure;
 extern long double rdf_total[21];
 extern int NUMBER_OF_CYCLES;

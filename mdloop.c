@@ -1,6 +1,6 @@
 #include "system.h"
 
-double averages[3] = {0, 0, 0}; // [0] = kinetic, [1] = potential, [2] = pressure  
+double averages[4] = {0, 0, 0, 0}; // [0] = kinetic, [1] = potential, [2] = sum, [3] = pressure  
 double *kinetic_energy_array;
 double *potential_energy_array;
 long double rdf_total[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -69,7 +69,7 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
-      if (i%20 == 0 && i>100) HistPrint(gphist, i);
+      if (i%20 == 0 && i>INITIALISATION_STEPS) HistPrint(gphist, i);
     }
     if (world_rank == 1) gnuprint(gp);
 
@@ -82,9 +82,9 @@ void Mdloop(world_rank){
    //     printf("%lf\n", (particlelist+i)->radial_distribution[j]);
       }
     }
-    normalisation = 1.0/(NUMBER_OF_CYCLES-100);
-    for (i=0; i<3;  i++) averages[i] *= normalisation;
-    printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2]);
+    normalisation = 1.0/(NUMBER_OF_CYCLES-INITIALISATION_STEPS);
+    for (i=0; i<4;  i++) averages[i] *= normalisation;
+    printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[3]);
     for (i=0; i<20; i++) {
       printf("\nrdf total %d", rdf_total[i]);
       rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/20.0)-SQR(i*RCUT/20.0)))) * (normalisation/NUMBER_OF_PARTICLES));
