@@ -84,7 +84,7 @@ void Mdloop(world_rank){
     }
     normalisation = 1.0/(NUMBER_OF_CYCLES-INITIALISATION_STEPS);
     for (i=0; i<4;  i++) averages[i] *= normalisation;
-    printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[3]);
+    printf("Averages:\nKinetic: %lf\nPotential: %lf\nEnergy drift: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2], averages[3]);
     for (i=0; i<20; i++) {
       printf("\nrdf total %d", rdf_total[i]);
       rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/20.0)-SQR(i*RCUT/20.0)))) * (normalisation/NUMBER_OF_PARTICLES));

@@ -261,7 +261,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   averages[0] += Ek;
   *(potential_energy_array + cycle) = Ev;
   averages[1] += Ev;
-  averages[2] += Ev + Ek;
+  averages[2] += sqrt(SQR(initialised_sum - Ek + Ev))/initialised_sum;
   averages[3] += current_pressure;
 }
 
