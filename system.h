@@ -18,21 +18,21 @@
 
 // Structs
 typedef struct {
-	double x;
-	double y;
+  double x;
+  double y;
 } Vector;
 
 typedef struct {
-	Vector position;	
-	Vector velocity;
+  Vector position;	
+  Vector velocity;
 
-	// force[0] = force at previous timestep. force[1] = force at current timestep
-	Vector force[2];
+  // force[0] = force at previous timestep. force[1] = force at current timestep
+  Vector force[2];
 
-	int cellnumber;
-	double potential;
-	double radial_distribution;
-	double pressure_contribution;
+  int cellnumber;
+  double potential;
+  int radial_distribution[21]; // radial_distribution[20] = outside Rcut
+  double pressure_contribution;
 } Particle;
 
 typedef struct {
@@ -56,9 +56,8 @@ int cmpfunc (const void * a, const void * b);
 void setindeces(Particle *particlelist, Cell *indices);
 void AssignCellnumber(int Particlenumber);
 void loopforces(Cell *cells, int world_rank);
-void sum_contributions(Cell *cells, Particle *gather);
+void sum_apply_contributions(Cell *cells, Particle *gather, int cycle);
 void gnuprint(FILE *gp);
-void ApplyNewForces(int cycle);
 void displace_particles();
 void clean_exit_on_sig(int sig_num);
 char* VECTOR_DUMP(Vector d);
@@ -75,6 +74,7 @@ extern double *kinetic_energy_array;
 extern double *potential_energy_array; 
 extern double averages[3]; 
 extern double pressure;
+extern double rdf_total[21];
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;
 extern int NUMBER_OF_PARTICLES;

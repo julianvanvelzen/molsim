@@ -26,13 +26,16 @@ void CheckInputErrors(){
 
 void ForceEnergy(Particle *p1, Particle *p2){
   double distance = VectorDistance(p1->position, p2->position);
-  if (distance > RCUT) return;
-
+  if (distance > RCUT){
+    p1->radial_distribution[20]++;
+    p2->radial_distribution[20]++;
+    return;
+  }
   double force = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT));
   
   Vector relative_position;
   relative_position.x = (p1->position.x - p2->position.x);
-	relative_position.y = (p1->position.y - p2->position.y);
+  relative_position.y = (p1->position.y - p2->position.y);
 
   Vector forceVector;
   forceVector = VectorScalar(relative_position, force/distance);
@@ -47,6 +50,10 @@ void ForceEnergy(Particle *p1, Particle *p2){
   double pressure = (forceVector.x*relative_position.x + forceVector.y*relative_position.y) / (2 * SQR(GRIDSIZE));
   p1->pressure_contribution += pressure;
   p2->pressure_contribution += pressure;
+
+  int rdf_bin_index = 20.0*distance/RCUT;
+  p1->radial_distribution[rdf_bin_index]++;
+  p2->radial_distribution[rdf_bin_index]++;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -69,11 +76,11 @@ double VectorDistance(Vector v1, Vector v2){
 }
 
 Vector RanUnit(void){
-	double random = RandomNumber() * 2 * M_PI;
-	Vector unit;
-	unit.x = cos(random);
-	unit.y = sin(random);
-	return unit;
+  double random = RandomNumber() * 2 * M_PI;
+  Vector unit;
+  unit.x = cos(random);
+  unit.y = sin(random);
+  return unit;
 }
 
 void getNearbyCoordinates(Cell *cells, int currentPosition){
@@ -194,24 +201,56 @@ void loopforces(Cell *cells, int world_rank){
   }
 }
 
-void sum_contributions(Cell *cells, Particle *gather){
-  int k,j, neighbour_offset, current_box_offset;
-  for (k = 0; k < NUMBER_OF_PARTICLES; k++)
+void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
+  int i,j,k, neighbour_offset, current_box_offset;
+  double Ek = 0;
+  double Ev = 0;
+  double current_pressure = 0;
+
+  for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {
-    current_box_offset = (particlelist+k)->cellnumber;
+    current_box_offset = (particlelist+i)->cellnumber;
     for (j = 7; j >= 4 ; j--)
     {
       neighbour_offset = (cells+current_box_offset)->neighbouringcells[j];
       if(neighbour_offset != 0){
-        (particlelist+k)->force[1] = VectorAddition((particlelist+k)->force[1], (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + k)->force[1]);
-        (particlelist+k)->potential += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + k)->potential;
-  	  }
+        (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->force[1]);
+        (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->potential;
+        for(k=0;k<21;k++){
+          (particlelist+i)->radial_distribution[k] += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->radial_distribution[k];
+        }
+      }
     }
     if(current_box_offset != 0){
-     (particlelist+k)->force[1] = VectorAddition((particlelist+k)->force[1], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + k)->force[1]);
-     (particlelist+k)->potential += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + k)->potential;
+      (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->force[1]);
+      (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->potential;
+      for(k=0;k<21;k++){
+        (particlelist+i)->radial_distribution[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
+      }
+    }
+    (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[1], (0.5*DELTAT)));
+
+    (particlelist + i)->force[0] = (particlelist + i)->force[1];
+    (particlelist + i)->force[1].x = 0;
+    (particlelist + i)->force[1].y = 0;
+
+    if(cycle > 200){
+      for(k=0;k<21;k++){
+        rdf_total[k] += (particlelist + i)->radial_distribution[k];
+        (particlelist + i)->radial_distribution[k] = 0;
+      }
+
+      Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
+      Ev += (particlelist + i)->potential;
+      current_pressure += (particlelist + i)->pressure_contribution;
     }
   }
+
+  *(kinetic_energy_array + cycle) = Ek;
+  averages[0] += Ek;
+  *(potential_energy_array + cycle) = Ev;
+  averages[1] += Ev;
+  averages[2] += current_pressure;
 }
 
 void gnuprint(FILE *gp){
@@ -253,32 +292,6 @@ void HistPrint(FILE *gp, int i){
 
 void AssignCellnumber(int ParticleIndex){
   (particlelist + ParticleIndex)->cellnumber = (int)(particlelist + ParticleIndex)->position.x + GRIDSIZE*(int)(particlelist + ParticleIndex)->position.y;
-}
-
-void ApplyNewForces(int cycle){
-	int i;
-	double Ek = 0;
-  double Ev = 0;
-  double current_pressure = 0;
-  
-	for(i = 0; i < NUMBER_OF_PARTICLES; i++)
-	{
-		(particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[1], (0.5*DELTAT)));
-
-		(particlelist + i)->force[0] = (particlelist + i)->force[1];
-		(particlelist + i)->force[1].x = 0;
-	  (particlelist + i)->force[1].y = 0;
-
-		Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
-		Ev += (particlelist + i)->potential;
-    current_pressure += (particlelist + i)->pressure_contribution;
-	}
-
-  *(kinetic_energy_array + cycle) = Ek;
-  averages[0] += Ek;
-  *(potential_energy_array + cycle) = Ev;
-  averages[1] += Ev;
-  averages[2] += current_pressure;
 }
 
 void displace_particles(){

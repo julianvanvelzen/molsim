@@ -3,10 +3,11 @@
 double averages[3] = {0, 0, 0}; // [0] = kinetic, [1] = potential, [2] = pressure  
 double *kinetic_energy_array;
 double *potential_energy_array;
+double rdf_total[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 void Mdloop(world_rank){
-  int i;
-  double size;
+  int i, j;
+  double size, normalisation;
   double startwtime, endwtime;
   double time1, time2, time3, time4, time5;
 
@@ -64,8 +65,7 @@ void Mdloop(world_rank){
     
     if (world_rank == 0){
       startwtime = MPI_Wtime();
-      sum_contributions(cells, gather);
-      ApplyNewForces(i);
+      sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
       if (i%20 == 0) HistPrint(gphist, i);
@@ -75,8 +75,19 @@ void Mdloop(world_rank){
   }
 
   if(world_rank == 0){
-    for (i = 0; i<3; i++) averages[i] /= NUMBER_OF_CYCLES;
+    for(i=0; i<NUMBER_OF_PARTICLES; i++){
+      for(j=0; j<21; j++){
+        rdf_total[j] += (particlelist+i)->radial_distribution[j]*1.0;
+   //     printf("%lf\n", (particlelist+i)->radial_distribution[j]);
+      }
+    }
+    normalisation = 1.0/(NUMBER_OF_CYCLES-200);
+    for (i=0; i<3;  i++) averages[i] *= normalisation;
     printf("Averages:\nKinetic: %lf\nPotential: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2]);
+    for (i=0; i<20; i++) {
+      rdf_total[i] *= normalisation/(NUMBER_OF_PARTICLES * M_PI * SQR(i*RCUT/20.0));
+      printf("\n%lf", rdf_total[i]);
+    }
   }
   // printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );
 

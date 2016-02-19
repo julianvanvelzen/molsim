@@ -3,10 +3,10 @@
 
 set NUMBER_OF_PROCESSORS  = 9
 set TEMPERATURE           = 2
-set NUMBER_OF_CYCLES      = 1500
-set NUMBER_OF_PARTICLES   = 40
+set NUMBER_OF_CYCLES      = 2000
+set NUMBER_OF_PARTICLES   = 50
 set RCUT                  = 1.
-set REPULSIVE_CST         = 500
+set REPULSIVE_CST         = 5
 set GRIDSIZE              = 3
 set DEBUG                 = f
 
@@ -26,7 +26,7 @@ else if ($DEBUG == 'valgrind') then
 
 else
 
-  mpirun -np $NUMBER_OF_PROCESSORS ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE
+  mpirun -np $NUMBER_OF_PROCESSORS ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE 2> log.txt
 
 endif
 
