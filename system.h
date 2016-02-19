@@ -71,6 +71,7 @@ extern double *kinetic_energy_array;
 extern double *potential_energy_array; 
 extern double averages[4]; 
 extern double pressure;
+extern double initialisation_sum;
 extern long double rdf_total[21];
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;

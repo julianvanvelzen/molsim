@@ -258,9 +258,8 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   }
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
-
+  if(cycle == INITIALISATION_STEPS) initialisation_sum = Ek + Ev;
   if(cycle > INITIALISATION_STEPS){
-    initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS)
     averages[0] += Ek;
     averages[1] += Ev;
     averages[2] += sqrt(SQR(initialised_sum - (Ek + Ev)))/initialised_sum;
