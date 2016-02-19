@@ -211,7 +211,7 @@ void loopforces(Cell *cells, int world_rank){
 
 void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   int i,j,k, neighbour_offset, current_box_offset;
-  double initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS);
+  double initialised_sum;
   double Ek = 0;
   double Ev = 0;
   double current_pressure = 0;
@@ -256,13 +256,16 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
       current_pressure += (particlelist + i)->pressure_contribution;
     }
   }
-
   *(kinetic_energy_array + cycle) = Ek;
-  averages[0] += Ek;
   *(potential_energy_array + cycle) = Ev;
-  averages[1] += Ev;
-  averages[2] += sqrt(SQR(initialised_sum - Ek + Ev))/initialised_sum;
-  averages[3] += current_pressure;
+
+  if(cycle > INITIALISATION_STEPS){
+    initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS)
+    averages[0] += Ek;
+    averages[1] += Ev;
+    averages[2] += sqrt(SQR(initialised_sum - (Ek + Ev)))/initialised_sum;
+    averages[3] += current_pressure;
+  }
 }
 
 void gnuprint(FILE *gp){
