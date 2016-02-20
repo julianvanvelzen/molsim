@@ -9,8 +9,9 @@
 #include <signal.h>
 
 // constants
-#define INITIALISATION_STEPS 100
+#define INITIALISATION_STEPS 10
 #define SQR(x) ((x)*(x))
+#define NUMBER_OF_BINS 10
 
 // Structs
 typedef struct {
@@ -21,13 +22,10 @@ typedef struct {
 typedef struct {
   Vector position;	
   Vector velocity;
-
-  // force[0] = force at previous timestep. force[1] = force at current timestep
-  Vector force[2];
-
+  Vector force[2]; // force[0] = force at previous timestep. force[1] = force at current timestep
   int cellnumber;
   double potential;
-  int radial_distribution[21]; // radial_distribution[20] = outside Rcut
+  int radial_distribution[NUMBER_OF_BINS]; // radial_distribution[NUMBER_OF_BINS] = outside Rcut
   double pressure_contribution;
 } Particle;
 
@@ -72,7 +70,7 @@ extern double *potential_energy_array;
 extern double averages[4]; 
 extern double pressure;
 extern double initialisation_sum;
-extern long double rdf_total[21];
+extern double rdf_total[NUMBER_OF_BINS];
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;
 extern int NUMBER_OF_PARTICLES;

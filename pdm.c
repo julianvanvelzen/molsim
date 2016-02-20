@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
           \nRCUT:                 %lf\
           \nREPULSIVE_CST:        %lf\
           \nGRIDSIZE:             %d\
-	  \nDELTAT:		  %lf\ 
+          \nDELTAT:		  %lf\
           \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE, DELTAT);
   }
   

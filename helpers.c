@@ -35,8 +35,8 @@ void CheckInputErrors(){
 void ForceEnergy(Particle *p1, Particle *p2){
   double distance = VectorDistance(p1->position, p2->position);
   if (distance > RCUT){
-    p1->radial_distribution[20]++;
-    p2->radial_distribution[20]++;
+    p1->radial_distribution[NUMBER_OF_BINS]++;
+    p2->radial_distribution[NUMBER_OF_BINS]++;
     return;
   }
   double force = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT));
@@ -48,8 +48,8 @@ void ForceEnergy(Particle *p1, Particle *p2){
   Vector forceVector;
   forceVector = VectorScalar(relative_position, force/distance);
   
- p1->force[1] = VectorAddition(p1->force[1], forceVector);     
- p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1)); 
+  p1->force[1] = VectorAddition(p1->force[1], forceVector);     
+  p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1)); 
 
   double potential = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
   p1->potential += potential;
@@ -59,7 +59,7 @@ void ForceEnergy(Particle *p1, Particle *p2){
   p1->pressure_contribution += pressure;
   p2->pressure_contribution += pressure;
 
-  int rdf_bin_index = 20.0*distance/RCUT;
+  int rdf_bin_index = NUMBER_OF_BINS*distance/RCUT;
   p1->radial_distribution[rdf_bin_index] += 1;
   p2->radial_distribution[rdf_bin_index] += 1;
   // printf("rdf %d \n", p1->radial_distribution[rdf_bin_index]  );
@@ -220,9 +220,10 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle, int world
   for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {
     current_box_offset = (particlelist+i)->cellnumber;
-    for(k=0;k<21;k++){
-      printf("%d %d %d %d\n", cycle, current_box_offset, (particlelist+i)->radial_distribution[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
-      // (particlelist+i)->radial_distribution[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
+    for(k=0;k<NUMBER_OF_BINS;k++){
+      (particlelist+i)->radial_distribution[k] = 0;
+      rdf_total[k] +=  (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
+      printf("%d %d\n",(particlelist+i)->radial_distribution[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
     }
 
     // Neighbours
@@ -245,12 +246,12 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle, int world
     (particlelist + i)->force[1].y = 0;
 
     if(cycle > INITIALISATION_STEPS){
-      // for(k=0;k<21;k++){
+      // for(k=0;k<NUMBER_OF_BINS;k++){
       //   // printf("%d %d\n", cycle, (particlelist + i)->radial_distribution[k]);
       //   rdf_total[k] += (particlelist + i)->radial_distribution[k];
       //   (particlelist + i)->radial_distribution[k] = 0;
       // }
-      // // printf("\n");
+      // printf("\n");
 
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
       Ev += (particlelist + i)->potential;
@@ -277,7 +278,7 @@ void gnuprint(FILE *gp){
   int i;
 
   // fack c
-  char options[100] = "unset autoscale\nset xrange [0:";
+  char options[200] = "unset autoscale\nset xrange [0:";
   char a[] = "]\nset yrange [0:";
   char b[] = "]\nplot '-'\n";
   char c[3];

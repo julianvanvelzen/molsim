@@ -37,7 +37,8 @@ void Initialize (){
     (particlelist + i)->force[0] = (particlelist + i)->force[1];  
     (particlelist + i)->force[1].y = 0.0;
     (particlelist + i)->force[1].x = 0.0;
-    for (j = 0; j < 21; j++)
+    for (j = 0; j < NUMBER_OF_BINS; j++){
       (particlelist + i)->radial_distribution[j] = 0;
+    }
   }
 }
