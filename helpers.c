@@ -261,7 +261,10 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle, int world
 
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
-  if(cycle == INITIALISATION_STEPS) initialisation_sum = Ek + Ev;
+  if(cycle == INITIALISATION_STEPS){
+    initialisation_sum = Ek + Ev;
+    printf("initialisation sum: %lf\n", initialisation_sum);
+  }
   if(cycle > INITIALISATION_STEPS){
     averages[0] += Ek;
     averages[1] += Ev;
