@@ -48,8 +48,8 @@ void ForceEnergy(Particle *p1, Particle *p2){
   Vector forceVector;
   forceVector = VectorScalar(relative_position, force/distance);
   
- // p1->force[1] = VectorAddition(p1->force[1], forceVector);     
- // p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1)); 
+ p1->force[1] = VectorAddition(p1->force[1], forceVector);     
+ p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1)); 
 
   double potential = REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
   p1->potential += potential;
@@ -60,9 +60,9 @@ void ForceEnergy(Particle *p1, Particle *p2){
   p2->pressure_contribution += pressure;
 
   int rdf_bin_index = 20.0*distance/RCUT;
-  p1->radial_distribution[rdf_bin_index]++;
-  p2->radial_distribution[rdf_bin_index]++;
-  // printf("rdf %d %d %lf\n",p2->radial_distribution[rdf_bin_index],rdf_bin_index, distance );
+  p1->radial_distribution[rdf_bin_index] += 1;
+  p2->radial_distribution[rdf_bin_index] += 1;
+  // printf("rdf %d \n", p1->radial_distribution[rdf_bin_index]  );
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -210,9 +210,9 @@ void loopforces(Cell *cells, int world_rank){
   }
 }
 
-void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
+void sum_apply_contributions(Cell *cells, Particle *gather, int cycle, int world_rank){
   int i,j,k, neighbour_offset, current_box_offset;
-  double initialised_sum;
+  // double initialised_sum;
   double Ek = 0;
   double Ev = 0;
   double current_pressure = 0;
@@ -220,6 +220,11 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {
     current_box_offset = (particlelist+i)->cellnumber;
+    for(k=0;k<21;k++){
+      printf("%d %d %d %d\n", cycle, current_box_offset, (particlelist+i)->radial_distribution[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
+      // (particlelist+i)->radial_distribution[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
+    }
+
     // Neighbours
     for (j = 7; j >= 4 ; j--)
     {
@@ -227,17 +232,11 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
       if(neighbour_offset != 0){
         (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->force[1]);
         (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->potential;
-        for(k=0;k<21;k++){
-          (particlelist+i)->radial_distribution[k] += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->radial_distribution[k];
-        }
-      }
+      } 
     }
     if(current_box_offset != 0){
       (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->force[1]);
       (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->potential;
-      for(k=0;k<21;k++){
-        (particlelist+i)->radial_distribution[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
-      }
     }
     (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[1], (0.5*DELTAT)));
 
@@ -245,13 +244,13 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
-    if(cycle > (INITIALISATION_STEPS+1)){
-      for(k=0;k<21;k++){
-        printf("%d %d\n", cycle, (particlelist + i)->radial_distribution[k]);
-        rdf_total[k] += (particlelist + i)->radial_distribution[k];
-        (particlelist + i)->radial_distribution[k] = 0;
-      }
-      printf("\n");
+    if(cycle > INITIALISATION_STEPS){
+      // for(k=0;k<21;k++){
+      //   // printf("%d %d\n", cycle, (particlelist + i)->radial_distribution[k]);
+      //   rdf_total[k] += (particlelist + i)->radial_distribution[k];
+      //   (particlelist + i)->radial_distribution[k] = 0;
+      // }
+      // // printf("\n");
 
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
       Ev += (particlelist + i)->potential;
@@ -262,12 +261,11 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
 
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
-
+  if(cycle == INITIALISATION_STEPS) initialisation_sum = Ek + Ev;
   if(cycle > INITIALISATION_STEPS){
-    initialised_sum = *(kinetic_energy_array + INITIALISATION_STEPS) + *(potential_energy_array + INITIALISATION_STEPS);
     averages[0] += Ek;
     averages[1] += Ev;
-    averages[2] += sqrt(SQR(initialised_sum - (Ek + Ev)))/initialised_sum;
+    averages[2] += sqrt(SQR(initialisation_sum - (Ek + Ev)))/initialisation_sum;
     averages[3] += current_pressure;
   }
 }

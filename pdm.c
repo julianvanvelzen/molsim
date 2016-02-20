@@ -4,6 +4,7 @@ double TEMPERATURE;
 double RCUT;
 double REPULSIVE_CST;
 double DELTAT;
+double initialisation_sum;
 int NUMBER_OF_CYCLES;
 int NUMBER_OF_PROCESSORS;
 int NUMBER_OF_PARTICLES;

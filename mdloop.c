@@ -5,8 +5,9 @@ double *kinetic_energy_array;
 double *potential_energy_array;
 long double rdf_total[21] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+
 void Mdloop(world_rank){
-  int i, j;
+  int i, j,k;
   double size, normalisation;
   double startwtime, endwtime;
   double time1, time2, time3, time4, time5;
@@ -35,8 +36,11 @@ void Mdloop(world_rank){
     }
   }
 
+
   size = NUMBER_OF_PARTICLES * sizeof(Particle);
   MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
+  
+
 
   // main loop
   for(i = 0; i < NUMBER_OF_CYCLES; i++){
@@ -47,6 +51,7 @@ void Mdloop(world_rank){
     }
 
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
+
 
     startwtime = MPI_Wtime();
     setindeces(particlelist, cells);
@@ -63,10 +68,9 @@ void Mdloop(world_rank){
     endwtime = MPI_Wtime();
     time5 +=  (endwtime-startwtime)*1000;
 
-    
     if (world_rank == 0){
       startwtime = MPI_Wtime();
-      sum_apply_contributions(cells, gather, i);
+      sum_apply_contributions(cells, gather, i, world_rank);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
       // if (i%20 == 0 && i>INITIALISATION_STEPS) HistPrint(gphist, i);
@@ -78,8 +82,8 @@ void Mdloop(world_rank){
   if(world_rank == 0){
     for(i=0; i<NUMBER_OF_PARTICLES; i++){
       for(j=0; j<21; j++){
-        rdf_total[j] += (particlelist+i)->radial_distribution[j]*1.0;
-   //     printf("%lf\n", (particlelist+i)->radial_distribution[j]);
+        rdf_total[j] += (particlelist+i)->radial_distribution[j];
+        // printf("radial_distribution %d\n", (particlelist+i)->radial_distribution[j]);
       }
     }
     normalisation = 1.0/(NUMBER_OF_CYCLES-INITIALISATION_STEPS);
@@ -94,7 +98,9 @@ void Mdloop(world_rank){
   // printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );
 
   // clear dynamic allocated memory
-  free(gather);
-  free(kinetic_energy_array);
-  free(potential_energy_array);
+  if (world_rank == 0){
+    free(gather);
+    free(kinetic_energy_array);
+    free(potential_energy_array);
+  }
 }
