@@ -19,17 +19,23 @@ void Mdloop(world_rank){
   endwtime = MPI_Wtime();
   time1 =  (endwtime-startwtime)*1000;
 
-  printf("%lf %lf %lf %lf %d %d %d %d %d\n", TEMPERATURE, RCUT, REPULSIVE_CST, DELTAT, NUMBER_OF_CYCLES, NUMBER_OF_PROCESSORS, NUMBER_OF_PARTICLES, INITIALISATION_STEPS, GRIDSIZE );
+  char filepathEnergy[250]; 
+  char filepathRadial[250]; 
 
   Particle *gather;
   FILE * gp = popen ("gnuplot -persist", "w");
   FILE * gphist = popen ("gnuplot -persist", "w");
-  FILE * fpRadial = fopen("resultsRadial.dat", "w+");
-  FILE * fpEnergy = fopen("resultsEnergy.dat", "w+");
+  FILE * fpRadial;
+  FILE * fpEnergy;
 
   // allocate memory
   if(world_rank == 0) {
+    sprintf(filepathEnergy, "data/EnergyForT%lfRpCst%lfRCUT%lfDT%lfNC%dNPar%dNpro%d.dat", TEMPERATURE, REPULSIVE_CST, RCUT, DELTAT, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, NUMBER_OF_PROCESSORS);
+    sprintf(filepathRadial, "data/RadialForT%lfRpCst%lfRCUT%lfDT%lfNC%dNPar%dNpro%d.dat", TEMPERATURE, REPULSIVE_CST, RCUT, DELTAT, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, NUMBER_OF_PROCESSORS);
 
+    fpRadial = fopen(filepathRadial, "w+");
+    fpEnergy = fopen(filepathEnergy, "w+");
+    
 
     gather = calloc(NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS, sizeof(Particle));
     kinetic_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);

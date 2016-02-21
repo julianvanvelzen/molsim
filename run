@@ -4,7 +4,7 @@
 set NUMBER_OF_PROCESSORS  = 9
 set TEMPERATURE           = 20
 set NUMBER_OF_CYCLES      = 500
-set NUMBER_OF_PARTICLES   = 750
+set NUMBER_OF_PARTICLES   = 50
 set RCUT                  = 1.0
 set REPULSIVE_CST         = 5
 set GRIDSIZE              = 3
@@ -12,6 +12,7 @@ set DELTAT                = 0.001
 set INITIALISATION_STEPS  = 10
 set DEBUG                 = f
 set PLOT                  = true
+
 
 clear
 make clean
@@ -36,6 +37,8 @@ endif
 
 if ($PLOT == 'true') then
 
+  gnuplot -e "filename='data/'" plotEnergy
+  gnuplot -e "filename='data/'" plotRadial
 
 endif
 
