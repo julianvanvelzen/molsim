@@ -18,6 +18,8 @@ void Mdloop(world_rank){
   endwtime = MPI_Wtime();
   time1 =  (endwtime-startwtime)*1000;
 
+  printf("%lf %lf %lf %lf %d %d %d %d %d\n", TEMPERATURE, RCUT, REPULSIVE_CST, DELTAT, NUMBER_OF_CYCLES, NUMBER_OF_PROCESSORS, NUMBER_OF_PARTICLES, INITIALISATION_STEPS, GRIDSIZE );
+
   Particle *gather;
   FILE * gp = popen ("gnuplot -persist", "w");
   FILE * gphist = popen ("gnuplot -persist", "w");
