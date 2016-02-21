@@ -11,6 +11,7 @@ set GRIDSIZE              = 3
 set DELTAT                = 0.001
 set INITIALISATION_STEPS  = 10
 set DEBUG                 = f
+set PLOT                  = true
 
 clear
 make clean
@@ -29,6 +30,12 @@ else if ($DEBUG == 'valgrind') then
 else
 
   mpirun -np $NUMBER_OF_PROCESSORS ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS 2> log.txt
+
+endif
+
+
+if ($PLOT == 'true') then
+
 
 endif
 
