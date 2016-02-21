@@ -5,8 +5,8 @@
 #include <time.h>
 #include <math.h>
 #include "ran_uniform.h"
-#include <unistd.h>
-#include <signal.h>
+// #include <unistd.h>
+// #include <signal.h>
 
 // constants
 #define SQR(x) ((x)*(x))

@@ -1,14 +1,14 @@
 #! /bin/bash
 
 NUMBER_OF_PROCESSORS=9
-TEMPERATURE=20
+NUMBER_OF_PARTICLES=200
 NUMBER_OF_CYCLES=500
-NUMBER_OF_PARTICLES=50
-RCUT=1.0
+INITIALISATION_STEPS=100
 REPULSIVE_CST=5
+TEMPERATURE=1
 GRIDSIZE=3
 DELTAT=0.001
-INITIALISATION_STEPS=10
+RCUT=1.0
 DEBUG=f
 PLOT=true
 
@@ -38,9 +38,10 @@ if [[ "$PLOT" = "true" ]]; then
 
   fileenergy= ls -t data/Energy* | head -1
   fileradial= ls -t data/Radial* | head -1
-  echo $fileradial
-  gnuplot -e "filename='`ls -t data/Energy* | head -1`'"  plotEnergy
-  gnuplot -e "filename='`ls -t data/Radial* | head -1`'" plotRadial
+
+  gnuplot -e "filename='`ls -t data/Energy*.dat | head -1`'"  plotEnergy
+  gnuplot -e "filename='`ls -t data/Radial*.dat | head -1`'" plotRadial
+  gnuplot -e "filename='`ls -t data/Momentum*.dat | head -1`'" plotMomentum
 
 fi
 

@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
 
   CheckInputErrors();
 
+
   particlelist = malloc(sizeof(Particle)*NUMBER_OF_PARTICLES);
 
   // Initialize the MPI environment

@@ -1,129 +1,39 @@
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-argc:                 11          
+argc:                 10          
 NUMBER_OF_PROCESSORS: 9          
 TEMPERATURE:          1.000000          
-NUMBER_OF_CYCLES:     200          
-NUMBER_OF_PARTICLES:  100          
-RCUT:                 0.500000          
+NUMBER_OF_CYCLES:     500          
+NUMBER_OF_PARTICLES:  200          
+RCUT:                 1.000000          
 REPULSIVE_CST:        5.000000          
 GRIDSIZE:             3          
 DELTAT:               0.001000          
 
 
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-1.000000 0.500000 5.000000 0.001000 200 9 100 10 3
-
-
- world rank1
-getNearbyCoordinates 0.000954
- setindeces 0.122547
- loopforces 2.605677
- ApplyNewForces 0.000000
- gather 0.478506
- sum 2.729177
-
-
- world rank3
-getNearbyCoordinates 0.001192
- setindeces 0.103474
- loopforces 1.795530
- ApplyNewForces 0.000000
- gather 0.485182
- sum 1.900196
-
-
- world rank2
-getNearbyCoordinates 0.000715
- setindeces 0.131845
- loopforces 1.593351
- ApplyNewForces 0.000000
- gather 795.175076
- sum 1.725912
-
-
- world rank7
-getNearbyCoordinates 0.001192
- setindeces 0.108480
- loopforces 2.423048
- ApplyNewForces 0.000000
- gather 4.189014
- sum 2.532721
-
-
- world rank8
-getNearbyCoordinates 0.001431
- setindeces 0.111818
- loopforces 1.562834
- ApplyNewForces 0.000000
- gather 1.043797
- sum 1.676083
-
-
- world rank5
-getNearbyCoordinates 0.000477
- setindeces 0.103474
- loopforces 1.120090
- ApplyNewForces 0.000000
- gather 0.485897
- sum 1.224041
-
-
- world rank6
-getNearbyCoordinates 0.000715
- setindeces 0.110626
- loopforces 1.751184
- ApplyNewForces 0.000000
- gather 727.440119
- sum 1.862526
-
-
- world rank4
-getNearbyCoordinates 0.001431
- setindeces 0.113487
- loopforces 1.050472
- ApplyNewForces 0.000000
- gather 6238.303661
- sum 1.165390
 Averages:            
-Kinetic energy:      145.367377            
-Potential energy:    543.280294            
-Energy drift:        0.117395            
-Pressure:            94.818810
+Kinetic energy:      577.305585            
+Potential energy:    10989.339882            
+Energy drift:        0.020350            
+Pressure:            1326.023209
 
-RDF bin 0:	0.323269
-RDF bin 1:	0.270195
-RDF bin 2:	0.303969
-RDF bin 3:	0.383236
-RDF bin 4:	0.493749
-RDF bin 5:	0.674610
-RDF bin 6:	0.579360
-RDF bin 7:	0.753329
-RDF bin 8:	0.753821
-RDF bin 9:	0.918510
-RDF bin 10:	0.947979
-RDF bin 11:	1.135112
-RDF bin 12:	1.110694
-RDF bin 13:	1.156191
-RDF bin 14:	1.104405
-RDF bin 15:	1.171052
-RDF bin 16:	1.184588
-RDF bin 17:	1.004959
-RDF bin 18:	0.975544
-RDF bin 19:	1.058758
+RDF bin 0:	0.491455
+RDF bin 1:	2.173181
+RDF bin 2:	1.833895
+RDF bin 3:	1.193798
+RDF bin 4:	1.289394
+RDF bin 5:	1.810742
+RDF bin 6:	2.710939
+RDF bin 7:	2.610157
+RDF bin 8:	2.676269
+RDF bin 9:	2.331486
+RDF bin 10:	2.254541
+RDF bin 11:	1.691826
+RDF bin 12:	2.181651
+RDF bin 13:	2.398003
+RDF bin 14:	2.644610
+RDF bin 15:	2.318543
+RDF bin 16:	2.361402
+RDF bin 17:	2.488544
+RDF bin 18:	2.042715
+RDF bin 19:	1.859215
 
-
- world rank0
-getNearbyCoordinates 0.000477
- setindeces 0.111580
- loopforces 1.732289
- ApplyNewForces 0.006437
- gather 7166.507006
- sum 1.850783
-
-Time elapsed: 18160.420179ms
+Time elapsed: 37516.014099ms
