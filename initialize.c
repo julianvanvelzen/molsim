@@ -10,17 +10,15 @@ void Initialize (){
     (particlelist + i)->position.y = RandomNumber() * GRIDSIZE;
 
     (particlelist + i)->velocity = VectorScalar(RanUnit(), RandomVelocity(TEMPERATURE));// 0;
-    //(particlelist + i)->velocity.y = RandomVelocity(TEMPERATURE);// 0;
-    
     momentum = VectorAddition(momentum, (particlelist + i)->velocity);
 
     AssignCellnumber(i);
   }
   
-  momentum = VectorScalar(momentum, 1.0/NUMBER_OF_PARTICLES);
+  momentum = VectorScalar(momentum, -1.0/NUMBER_OF_PARTICLES);
 
   for(i=0; i<NUMBER_OF_PARTICLES; i++){
-   (particlelist + i)->velocity = VectorAddition((particlelist +i)->velocity, VectorScalar(momentum, -1));
+   (particlelist + i)->velocity = VectorAddition((particlelist +i)->velocity, momentum);
    temp = VectorAddition(temp, (particlelist + i)->velocity);
   }
 

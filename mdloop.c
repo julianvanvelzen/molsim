@@ -5,9 +5,8 @@ double *kinetic_energy_array;
 double *potential_energy_array;
 double rdf_total[NUMBER_OF_BINS] = { 0 };
 
-
 void Mdloop(world_rank){
-  int i, j,k;
+  int i, j, k;
   double size, normalisation, shell_area;
   double startwtime, endwtime;
   double time1, time2, time3, time4, time5;
@@ -30,13 +29,13 @@ void Mdloop(world_rank){
 
   // allocate memory
   if(world_rank == 0) {
+
     sprintf(filepathEnergy, "data/EnergyForT%lfRpCst%lfRCUT%lfDT%lfNC%dNPar%dNpro%d.dat", TEMPERATURE, REPULSIVE_CST, RCUT, DELTAT, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, NUMBER_OF_PROCESSORS);
     sprintf(filepathRadial, "data/RadialForT%lfRpCst%lfRCUT%lfDT%lfNC%dNPar%dNpro%d.dat", TEMPERATURE, REPULSIVE_CST, RCUT, DELTAT, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, NUMBER_OF_PROCESSORS);
 
     fpRadial = fopen(filepathRadial, "w+");
     fpEnergy = fopen(filepathEnergy, "w+");
     
-
     gather = calloc(NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS, sizeof(Particle));
     kinetic_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
     potential_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);

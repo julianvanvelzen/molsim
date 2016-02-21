@@ -71,7 +71,6 @@ int main(int argc, char** argv) {
   }
 
   // signal(SIGSEGV, clean_exit_on_sig); 
-  // printf("Processor %d is klaar!\n", world_rank );
   MPI_Finalize();
   return 0;
 }

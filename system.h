@@ -10,7 +10,7 @@
 
 // constants
 #define SQR(x) ((x)*(x))
-#define NUMBER_OF_BINS 10
+#define NUMBER_OF_BINS 20
 
 // Structs
 typedef struct {
@@ -24,7 +24,7 @@ typedef struct {
   Vector force[2]; // force[0] = force at previous timestep. force[1] = force at current timestep
   int cellnumber;
   double potential;
-  int radial_distribution[NUMBER_OF_BINS]; // radial_distribution[NUMBER_OF_BINS] = outside Rcut
+  int radial_distribution[NUMBER_OF_BINS]; 
   double pressure_contribution;
 } Particle;
 
@@ -53,10 +53,6 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle);
 void gnuprint(FILE *gp);
 void displace_particles();
 void clean_exit_on_sig(int sig_num);
-char* VECTOR_DUMP(Vector d);
-char* PARTICLE_DUMP(Particle d);
-char* CELL_DUMP(Cell d);
-char* INT_ARRAY_DUMP(int length, int data[]  );
 void HistPrint(FILE *gp, int i);
 
 // globals
