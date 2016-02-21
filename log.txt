@@ -1,110 +1,13 @@
-argc:                 10          
+argc:                 11          
 NUMBER_OF_PROCESSORS: 9          
 TEMPERATURE:          20.000000          
 NUMBER_OF_CYCLES:     500          
-NUMBER_OF_PARTICLES:  200          
-RCUT:                 0.100000          
-REPULSIVE_CST:        10.000000          
+NUMBER_OF_PARTICLES:  750          
+RCUT:                 1.000000          
+REPULSIVE_CST:        5.000000          
 GRIDSIZE:             3          
-DELTAT:		  0.001000          
+DELTAT:               0.001000          
 
 
-
-
- world rank5
-getNearbyCoordinates 0.000954
- setindeces 0.849962
- loopforces 26.832104
- ApplyNewForces 0.000000
- gather 2.758980
- sum 27.683020
-
-
- world rank7
-getNearbyCoordinates 0.000715
- setindeces 0.859499
- loopforces 36.707401
- ApplyNewForces 0.000000
- gather 3.065348
- sum 37.567616
-
-
- world rank6
-getNearbyCoordinates 0.000715
- setindeces 0.875711
- loopforces 35.753727
- ApplyNewForces 0.000000
- gather 1636.088133
- sum 36.630154
-
-
- world rank8
-getNearbyCoordinates 0.000477
- setindeces 0.766039
- loopforces 42.051315
- ApplyNewForces 0.000000
- gather 4.321575
- sum 42.817831
-
-
- world rank1
-getNearbyCoordinates 0.000954
- setindeces 0.793219
- loopforces 19.887447
- ApplyNewForces 0.000000
- gather 2.848148
- sum 20.681620
-
-
- world rank3
-getNearbyCoordinates 0.000715
- setindeces 0.751734
- loopforces 37.215710
- ApplyNewForces 0.000000
- gather 2.770424
- sum 37.968159
-
-
- world rank2
-getNearbyCoordinates 0.000954
- setindeces 0.842810
- loopforces 22.105694
- ApplyNewForces 0.000000
- gather 2709.062099
- sum 22.949457
-Averages:            
-Kinetic:      2035.281575            
-Potential:    153.562289            
-Energy drift: 0.013777            
-Pressure:     20.655730
-
-
-
- world rank4
-getNearbyCoordinates 0.000715
- setindeces 0.829220
- loopforces 21.304369
- ApplyNewForces 0.000000
- gather 12448.656559
- sum 22.134304
-RDF bin 0:	0.315127
-RDF bin 1:	0.492982
-RDF bin 2:	0.585849
-RDF bin 3:	0.612860
-RDF bin 4:	0.690335
-RDF bin 5:	0.786840
-RDF bin 6:	0.854478
-RDF bin 7:	0.929624
-RDF bin 8:	0.925790
-RDF bin 9:	0.940857
-
-
- world rank0
-getNearbyCoordinates 0.000954
- setindeces 0.832796
- loopforces 22.699267
- ApplyNewForces 0.015974
- gather 13033.603430
- sum 23.548990
-
-Time elapsed: 33648.412228ms
+[mpiexec@koen-System-Product-Name] Sending Ctrl-C to processes as requested
+[mpiexec@koen-System-Product-Name] Press Ctrl-C again to force abort
