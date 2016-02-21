@@ -2,7 +2,7 @@
 #
 
 set NUMBER_OF_PROCESSORS  = 9
-set TEMPERATURE           = 1
+set TEMPERATURE           = 20
 set NUMBER_OF_CYCLES      = 500
 set NUMBER_OF_PARTICLES   = 750
 set RCUT                  = 1.0
