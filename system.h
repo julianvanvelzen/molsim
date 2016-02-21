@@ -53,10 +53,6 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle);
 void gnuprint(FILE *gp);
 void displace_particles();
 void clean_exit_on_sig(int sig_num);
-char* VECTOR_DUMP(Vector d);
-char* PARTICLE_DUMP(Particle d);
-char* CELL_DUMP(Cell d);
-char* INT_ARRAY_DUMP(int length, int data[]  );
 void HistPrint(FILE *gp, int i);
 
 // globals

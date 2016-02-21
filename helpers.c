@@ -52,7 +52,7 @@ void ForceEnergy(Particle *p1, Particle *p2){
   p1->force[1] = VectorAddition(p1->force[1], forceVector);     
   p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1)); 
 
-  // Potential and pressure are summed over all particles later, 
+  // Potential and pressure are summed over all particles later,
   // there is no need to explicitly save p2->potential or p2->pressure
   p1->potential += 2*REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
   p1->pressure_contribution += 2*(forceVector.x*relative_position.x + forceVector.y*relative_position.y) / (2 * SQR(GRIDSIZE));
@@ -223,7 +223,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
-    Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
+    Ek += (SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y)); // divided by 2 later
     Ev += (particlelist + i)->potential;
     current_pressure += (particlelist + i)->pressure_contribution;
     
@@ -235,6 +235,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     }
   }
 
+  Ek /= 2.0;
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
   current_pressure += 2.0*Ek*NUMBER_OF_PARTICLES/(SQR(GRIDSIZE)*(2.0*NUMBER_OF_PARTICLES-2));
@@ -243,7 +244,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   if(cycle >= INITIALISATION_STEPS){
     averages[0] += Ek;
     averages[1] += Ev;
-    averages[2] += sqrt(SQR(Energy_Reference - (Ek + Ev)))/Energy_Reference;
+    averages[2] += fabs(Energy_Reference - (Ek + Ev))/Energy_Reference;
     averages[3] += current_pressure;
   }
 }
