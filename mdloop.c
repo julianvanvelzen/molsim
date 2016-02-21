@@ -8,7 +8,7 @@ double rdf_total[NUMBER_OF_BINS] = { 0 };
 
 void Mdloop(world_rank){
   int i, j,k;
-  double size, normalisation;
+  double size, normalisation, shell_area;
   double startwtime, endwtime;
   double time1, time2, time3, time4, time5;
 
@@ -73,12 +73,12 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
+
       // if (i%20 == 0 && i>INITIALISATION_STEPS ) LiveLinePrint(gphist, i);
       if (i%10 == 0 && i>INITIALISATION_STEPS ) WriteToFile(fpEnergy, i);
-
       // gnuprint(gp);
     }
-
+    if (world_rank == 1) gnuprint(gp);
   }
 
   if(world_rank == 0){
@@ -89,11 +89,11 @@ void Mdloop(world_rank){
             \nKinetic:      %lf\
             \nPotential:    %lf\
             \nEnergy drift: %lf\
-            \nPressure:     %lf\n", averages[0], averages[1], averages[2], averages[3]);
+            \nPressure:     %lf\n\n", averages[0], averages[1], averages[2], averages[3]);
     for (i=0; i<NUMBER_OF_BINS; i++) {
-      rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)))) * (normalisation/NUMBER_OF_PARTICLES));
+      rdf_total[i] *= normalisation/(M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)) * SQR(NUMBER_OF_PARTICLES)/SQR(GRIDSIZE));
       fprintf(fpRadial, "%d %g\n", i , rdf_total[i]  );
-      printf("rcut20 %lf sqr-sqr%lf norm %lf rdf %lf\n", (i+1)*RCUT/NUMBER_OF_BINS, (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)), normalisation/NUMBER_OF_PARTICLES, rdf_total[i]);
+      printf("RDF bin %d:\t%lf\n", i, rdf_total[i]);
     }
   }
   printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );

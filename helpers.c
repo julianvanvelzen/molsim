@@ -34,11 +34,8 @@ void CheckInputErrors(){
 
 void ForceEnergy(Particle *p1, Particle *p2){
   double distance = VectorDistance(p1->position, p2->position);
-  if (distance > RCUT){
-    p1->radial_distribution[NUMBER_OF_BINS]++;
-    p2->radial_distribution[NUMBER_OF_BINS]++;
-    return;
-  }
+  if (distance > RCUT) return;
+
   double force = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT));
   
   Vector relative_position;
@@ -218,17 +215,18 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   {
     current_box_offset = (particlelist+i)->cellnumber;
     // Neighbours
-    for (j = 7; j >= 4 ; j--)
-    {
+    for (j = 7; j >= 4 ; j--) {
       neighbour_offset = (cells+current_box_offset)->neighbouringcells[j];
       if(neighbour_offset != 0){
         (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->force[1]);
         (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->potential;
+        (particlelist+i)->pressure_contribution += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->pressure_contribution;
       } 
     }
     if(current_box_offset != 0){
       (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->force[1]);
       (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->potential;
+      (particlelist+i)->pressure_contribution += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->pressure_contribution;
     }
     (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[1], (0.5*DELTAT)));
     (particlelist + i)->force[0] = (particlelist + i)->force[1];
@@ -236,20 +234,18 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     (particlelist + i)->force[1].y = 0;
 
     if(cycle >= INITIALISATION_STEPS){
-      for(k=0;k<NUMBER_OF_BINS;k++){
-        rdf_total[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
-        // printf("p %d cyc %d k %d rdf_total %lf rad k %d\n", i, cycle, k, rdf_total[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
-        (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k] = 0;
-      }
+      for(k=0;k<NUMBER_OF_BINS;k++) rdf_total[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]; 
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
       Ev += (particlelist + i)->potential;
       current_pressure += (particlelist + i)->pressure_contribution;
     }
+
+    for(k=0;k<NUMBER_OF_BINS;k++) (particlelist + i)->radial_distribution[k] = 0;
   }
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
   if(cycle == INITIALISATION_STEPS) initialisation_sum = Ek + Ev;
-  if(cycle > INITIALISATION_STEPS){
+  if(cycle >= INITIALISATION_STEPS){
     averages[0] += Ek;
     averages[1] += Ev;
     averages[2] += sqrt(SQR(initialisation_sum - (Ek + Ev)))/initialisation_sum;
