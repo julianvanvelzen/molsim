@@ -260,7 +260,7 @@ void gnuprint(FILE *gp){
 
 
 
-  char options[200] = "set terminal png size 900,900 enhanced font 'Helvetica,20'\nset output 'output.png'\nunset autoscale\nset xrange [0:";
+  char options[200] = "unset autoscale\nset xrange [0:";
   char a[] = "]\nset yrange [0:";
   char b[] = "]\nplot '-'\n";
   char c[3];
