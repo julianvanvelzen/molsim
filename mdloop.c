@@ -20,8 +20,8 @@ void Mdloop(world_rank){
   time1 =  (endwtime-startwtime)*1000;
 
   Particle *gather;
-  // FILE * gp = popen ("gnuplot -persist", "w");
-  // FILE * gphist = popen ("gnuplot -persist", "w");
+  FILE * gp = popen ("gnuplot -persist", "w");
+  FILE * gphist = popen ("gnuplot -persist", "w");
   FILE * fpRadial = fopen("resultsRadial.dat", "w+");
   FILE * fpEnergy = fopen("resultsEnergy.dat", "w+");
 
@@ -76,9 +76,8 @@ void Mdloop(world_rank){
 
       // if (i%20 == 0 && i>INITIALISATION_STEPS ) LiveLinePrint(gphist, i);
       if (i%10 == 0 && i>INITIALISATION_STEPS ) WriteToFile(fpEnergy, i);
-      // gnuprint(gp);
     }
-    if (world_rank == 1) gnuprint(gp);
+    // if (world_rank == 1) gnuprint(gp);
   }
 
   if(world_rank == 0){
