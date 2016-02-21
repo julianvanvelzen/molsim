@@ -24,7 +24,7 @@ typedef struct {
   Vector force[2]; // force[0] = force at previous timestep. force[1] = force at current timestep
   int cellnumber;
   double potential;
-  int radial_distribution[NUMBER_OF_BINS]; // radial_distribution[NUMBER_OF_BINS] = outside Rcut
+  int radial_distribution[NUMBER_OF_BINS]; 
   double pressure_contribution;
 } Particle;
 
