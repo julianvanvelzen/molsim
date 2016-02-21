@@ -79,15 +79,15 @@ void Mdloop(world_rank){
     normalisation = 1.0/(NUMBER_OF_CYCLES-INITIALISATION_STEPS);
 
     for (i=0; i<4;  i++) averages[i] *= normalisation;
-    printf("Averages:\nKinetic: %lf\nPotential: %lf\nEnergy drift: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2], averages[3]);
-
+    printf("Averages:\
+            \nKinetic:      %lf\
+            \nPotential:    %lf\
+            \nEnergy drift: %lf\
+            \nPressure:     %lf\n", averages[0], averages[1], averages[2], averages[3]);
     for (i=0; i<NUMBER_OF_BINS; i++) {
-      shell_area = M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS));
-      printf("\nrdf total %lf", rdf_total[i]);
-      rdf_total[i] /= shell_area;
-      rdf_total[i] /= (NUMBER_OF_PARTICLES/SQR(GRIDSIZE));
-      rdf_total[i] *= normalisation;
-      printf(" mpi %lf rcut20 %lf sqr-sqr%lf norm %lf rdf %lf", M_PI, (i+1)*RCUT/NUMBER_OF_BINS, (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)), normalisation/NUMBER_OF_PARTICLES, rdf_total[i]);
+      printf("\nrdf total %d", rdf_total[i]);
+      rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)))) * (normalisation/NUMBER_OF_PARTICLES));
+      printf("rcut20 %lf sqr-sqr%lf norm %lf rdf %lf\n", (i+1)*RCUT/NUMBER_OF_BINS, (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)), normalisation/NUMBER_OF_PARTICLES, rdf_total[i]);
     }
   }
   // printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );
