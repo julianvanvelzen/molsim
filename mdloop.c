@@ -49,7 +49,6 @@ void Mdloop(world_rank){
 
     MPI_Bcast(particlelist, size , MPI_BYTE, 0, MPI_COMM_WORLD);
 
-
     startwtime = MPI_Wtime();
     setindeces(particlelist, cells);
     endwtime = MPI_Wtime();
@@ -77,13 +76,13 @@ void Mdloop(world_rank){
 
   if(world_rank == 0){
     normalisation = 1.0/(NUMBER_OF_CYCLES-INITIALISATION_STEPS);
-
+        
     for (i=0; i<4;  i++) averages[i] *= normalisation;
     printf("Averages:\
-            \nKinetic:      %lf\
-            \nPotential:    %lf\
-            \nEnergy drift: %lf\
-            \nPressure:     %lf\n\n", averages[0], averages[1], averages[2], averages[3]);
+            \nKinetic energy:      %lf\
+            \nPotential energy:    %lf\
+            \nEnergy drift:        %lf\
+            \nPressure:            %lf\n\n", averages[0], averages[1], averages[2], averages[3]);
     for (i=0; i<NUMBER_OF_BINS; i++) {
       rdf_total[i] *= normalisation/(M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)) * SQR(NUMBER_OF_PARTICLES)/SQR(GRIDSIZE));
       printf("RDF bin %d:\t%lf\n", i, rdf_total[i]);

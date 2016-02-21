@@ -9,7 +9,6 @@
 #include <signal.h>
 
 // constants
-#define INITIALISATION_STEPS 10
 #define SQR(x) ((x)*(x))
 #define NUMBER_OF_BINS 10
 
@@ -69,10 +68,11 @@ extern double *kinetic_energy_array;
 extern double *potential_energy_array; 
 extern double averages[4]; 
 extern double pressure;
-extern double initialisation_sum;
+extern double Energy_Reference;
 extern double rdf_total[NUMBER_OF_BINS];
 extern int NUMBER_OF_CYCLES;
 extern int NUMBER_OF_PROCESSORS;
 extern int NUMBER_OF_PARTICLES;
+extern int INITIALISATION_STEPS;
 extern int GRIDSIZE;
 extern Particle *particlelist;

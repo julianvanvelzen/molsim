@@ -8,6 +8,7 @@ double initialisation_sum;
 int NUMBER_OF_CYCLES;
 int NUMBER_OF_PROCESSORS;
 int NUMBER_OF_PARTICLES;
+int INITIALISATION_STEPS;
 int GRIDSIZE;
 Particle *particlelist;
 
@@ -25,7 +26,8 @@ int main(int argc, char** argv) {
     RCUT                 = atof(argv[5]);
     REPULSIVE_CST        = atof(argv[6]);
     GRIDSIZE             = atoi(argv[7]);
-    DELTAT		 = atof(argv[8]);
+    DELTAT               = atof(argv[8]);
+    INITIALISATION_STEPS = atoi(argv[9]);
   } else {
     printf("Not enough parameters\n");
     exit(1);
@@ -57,7 +59,7 @@ int main(int argc, char** argv) {
           \nRCUT:                 %lf\
           \nREPULSIVE_CST:        %lf\
           \nGRIDSIZE:             %d\
-          \nDELTAT:		  %lf\
+          \nDELTAT:               %lf\
           \n\n\n", argc, NUMBER_OF_PROCESSORS, TEMPERATURE, NUMBER_OF_CYCLES, NUMBER_OF_PARTICLES, RCUT, REPULSIVE_CST, GRIDSIZE, DELTAT);
   }
   

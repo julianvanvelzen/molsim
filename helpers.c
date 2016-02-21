@@ -22,6 +22,10 @@ void CheckInputErrors(){
     printf("DeltaT must be higher than 0\n");
     Error = 1;
   }
+  if(INITIALISATION_STEPS < 0){
+    printf("Number of initialisation steps may not be negative\n");
+    Error = 1;
+  }
   if(NUMBER_OF_CYCLES <= INITIALISATION_STEPS){
     printf("Simulation must be longer than number of initialisation steps (%d)\n", INITIALISATION_STEPS);
     Error = 1;
@@ -214,20 +218,20 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {
     current_box_offset = (particlelist+i)->cellnumber;
-    // Neighbours
-    for (j = 7; j >= 4 ; j--) {
+    for (j = 7; j >= 4 ; j--) {   // Only the contribution of bottom and left neighbours needs to be considered
       neighbour_offset = (cells+current_box_offset)->neighbouringcells[j];
-      if(neighbour_offset != 0){
+      if(neighbour_offset != 0){  // (particlelist + i) already includes the contribution of box 0
         (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->force[1]);
         (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->potential;
         (particlelist+i)->pressure_contribution += (gather + (NUMBER_OF_PARTICLES*neighbour_offset) + i)->pressure_contribution;
       } 
     }
-    if(current_box_offset != 0){
+    if(current_box_offset != 0){  // (particlelist + i) already includes the contribution of box 0
       (particlelist+i)->force[1] = VectorAddition((particlelist+i)->force[1], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->force[1]);
       (particlelist+i)->potential += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->potential;
       (particlelist+i)->pressure_contribution += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->pressure_contribution;
     }
+  
     (particlelist + i)->velocity = VectorAddition((particlelist + i)->velocity, VectorScalar((particlelist + i)->force[1], (0.5*DELTAT)));
     (particlelist + i)->force[0] = (particlelist + i)->force[1];
     (particlelist + i)->force[1].x = 0;
@@ -242,13 +246,16 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
 
     for(k=0;k<NUMBER_OF_BINS;k++) (particlelist + i)->radial_distribution[k] = 0;
   }
+
   *(kinetic_energy_array + cycle) = Ek;
   *(potential_energy_array + cycle) = Ev;
-  if(cycle == INITIALISATION_STEPS) initialisation_sum = Ek + Ev;
+  current_pressure += 2.0*Ek*NUMBER_OF_PARTICLES/(SQR(GRIDSIZE)*(2.0*NUMBER_OF_PARTICLES-2));
+
+  if(cycle == INITIALISATION_STEPS) Energy_Reference = Ek + Ev;
   if(cycle >= INITIALISATION_STEPS){
     averages[0] += Ek;
     averages[1] += Ev;
-    averages[2] += sqrt(SQR(initialisation_sum - (Ek + Ev)))/initialisation_sum;
+    averages[2] += sqrt(SQR(Energy_Reference - (Ek + Ev)))/Energy_Reference;
     averages[3] += current_pressure;
   }
 }
