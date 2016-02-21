@@ -1,0 +1,48 @@
+#! /bin/bash
+
+NUMBER_OF_PROCESSORS=9
+TEMPERATURE=20
+NUMBER_OF_CYCLES=500
+NUMBER_OF_PARTICLES=50
+RCUT=1.0
+REPULSIVE_CST=5
+GRIDSIZE=3
+DELTAT=0.001
+INITIALISATION_STEPS=10
+DEBUG=f
+PLOT=true
+
+
+clear
+make clean
+make
+
+
+if [[ "$DEBUG" == "GDB" ]]; then
+  
+  x = $(NUMBER_OF_PROCESSORS - 1)
+  mpirun -np 1 gdb --args ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE : -np $x ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS
+  
+elif [[ "$DEBUG" == "valgrind" ]]; then
+
+  mpirun -np $NUMBER_OF_PROCESSORS valgrind --leak-check=full --track-origins=yes --suppressions=/usr/share/openmpi/openmpi-valgrind.supp ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS
+
+else
+
+  mpirun -np $NUMBER_OF_PROCESSORS ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS > log.txt
+
+fi
+
+
+if [[ "$PLOT" = "true" ]]; then
+
+  fileenergy= ls -t data/Energy* | head -1
+  fileradial= ls -t data/Radial* | head -1
+  echo $fileradial
+  gnuplot -e "filename='`ls -t data/Energy* | head -1`'"  plotEnergy
+  gnuplot -e "filename='`ls -t data/Radial* | head -1`'" plotRadial
+
+fi
+
+
+exit

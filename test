@@ -1,0 +1,14 @@
+# !/bin/bash
+
+PLOT=true
+
+
+if [[ "$PLOT" = "true" ]]; then
+
+  fileenergy= ls -t data/Energy* | head -1
+  fileradial= ls -t data/Radial* | head -1
+  echo $fileradial
+  gnuplot -e "filename='`ls -t data/Energy* | head -1`'"  plotEnergy
+  gnuplot -e "filename='`ls -t data/Radial* | head -1`'" plotRadial
+
+fi
