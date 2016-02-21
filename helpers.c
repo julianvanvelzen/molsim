@@ -245,7 +245,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle, int world
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
-    if(cycle > INITIALISATION_STEPS){
+    if(cycle >= INITIALISATION_STEPS){
       // for(k=0;k<NUMBER_OF_BINS;k++){
       //   // printf("%d %d\n", cycle, (particlelist + i)->radial_distribution[k]);
       //   rdf_total[k] += (particlelist + i)->radial_distribution[k];
