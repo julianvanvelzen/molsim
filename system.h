@@ -10,7 +10,7 @@
 
 // constants
 #define SQR(x) ((x)*(x))
-#define NUMBER_OF_BINS 10
+#define NUMBER_OF_BINS 20
 
 // Structs
 typedef struct {
