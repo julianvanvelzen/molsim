@@ -9,7 +9,7 @@
 #include <signal.h>
 
 // constants
-#define INITIALISATION_STEPS 10
+#define INITIALISATION_STEPS 100
 #define SQR(x) ((x)*(x))
 #define NUMBER_OF_BINS 10
 

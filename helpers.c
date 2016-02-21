@@ -238,7 +238,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     if(cycle >= INITIALISATION_STEPS){
       for(k=0;k<NUMBER_OF_BINS;k++){
         rdf_total[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
-        printf("p %d cyc %d k %d rdf_total %lf rad k %d\n", i, cycle, k, rdf_total[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
+        // printf("p %d cyc %d k %d rdf_total %lf rad k %d\n", i, cycle, k, rdf_total[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
         (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k] = 0;
       }
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;
@@ -261,7 +261,10 @@ void gnuprint(FILE *gp){
   int i;
 
   // fack c
-  char options[200] = "unset autoscale\nset xrange [0:";
+
+
+
+  char options[200] = "set terminal png size 900,900 enhanced font 'Helvetica,20'\nset output 'output.png'\nunset autoscale\nset xrange [0:";
   char a[] = "]\nset yrange [0:";
   char b[] = "]\nplot '-'\n";
   char c[3];
@@ -279,18 +282,26 @@ void gnuprint(FILE *gp){
   fprintf(gp, "e\n");
 }
 
-void HistPrint(FILE *gp, int i){
+void LiveLinePrint(FILE *gp, int i){
   int j;
 
-  char options[400] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nset style line 13 lc rgb '#09ad00' lt 1 lw 1.5\nset style line 8  lc rgb '#00ad88' lt 1 lw 1.5\nplot '-' using 1:2 with linespoints, '-' using 1:3 with linespoints, '-' using 1:4 with linespoints\n ";
+  char options[400] = "set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 4 ps 1.5 \nset style line 13 lc rgb '#09ad00' lt 1 lw 1.5\nset style line 8  lc rgb '#00ad88' lt 1 lw 1.5\nplot '-' using 1:2 with linespoints title 'Potential Energy', '-' using 1:3 with linespoints title 'Kinetic Energy', '-' using 1:4 with linespoints title 'Total Energy'\n ";
 
   // printf("%d\n", i);
   fprintf(gp, options);
 
-  for (j=INITIALISATION_STEPS; j<i; j+=20) fprintf(gp, "%d %g %g %g\n", j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
+  for (j=INITIALISATION_STEPS; j<i; j+=20){
+    fprintf(gp, "%d %g %g %g\n", j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
+    // printf("%d %lf %lf %lf\n",j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
+  } 
 
   fflush(gp);
   fprintf(gp, "e\n");
+}
+
+void WriteToFile(FILE *gp, int i){
+  fprintf(gp, "%d %g %g %g\n", i , potential_energy_array[i],kinetic_energy_array[i],potential_energy_array[i]+kinetic_energy_array[i]  );
+  fflush(gp);
 }
 
 void AssignCellnumber(int ParticleIndex){

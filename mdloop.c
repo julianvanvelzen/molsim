@@ -19,13 +19,16 @@ void Mdloop(world_rank){
   endwtime = MPI_Wtime();
   time1 =  (endwtime-startwtime)*1000;
 
-  FILE * gp = popen ("gnuplot -persist", "w");
-  FILE * gphist = popen ("gnuplot -persist", "w");
-
   Particle *gather;
+  // FILE * gp = popen ("gnuplot -persist", "w");
+  // FILE * gphist = popen ("gnuplot -persist", "w");
+  FILE * fpRadial = fopen("resultsRadial.dat", "w+");
+  FILE * fpEnergy = fopen("resultsEnergy.dat", "w+");
 
   // allocate memory
   if(world_rank == 0) {
+
+
     gather = calloc(NUMBER_OF_PARTICLES * NUMBER_OF_PROCESSORS, sizeof(Particle));
     kinetic_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
     potential_energy_array = malloc(sizeof(double) * NUMBER_OF_CYCLES);
@@ -70,7 +73,9 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
-      // if (i%20 == 0 && i>INITIALISATION_STEPS) HistPrint(gphist, i);
+      // if (i%20 == 0 && i>INITIALISATION_STEPS ) LiveLinePrint(gphist, i);
+      if (i%10 == 0 && i>INITIALISATION_STEPS ) WriteToFile(fpEnergy, i);
+
       // gnuprint(gp);
     }
 
@@ -86,17 +91,19 @@ void Mdloop(world_rank){
             \nEnergy drift: %lf\
             \nPressure:     %lf\n", averages[0], averages[1], averages[2], averages[3]);
     for (i=0; i<NUMBER_OF_BINS; i++) {
-      printf("\nrdf total %d", rdf_total[i]);
       rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)))) * (normalisation/NUMBER_OF_PARTICLES));
+      fprintf(fpRadial, "%d %g\n", i , rdf_total[i]  );
       printf("rcut20 %lf sqr-sqr%lf norm %lf rdf %lf\n", (i+1)*RCUT/NUMBER_OF_BINS, (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)), normalisation/NUMBER_OF_PARTICLES, rdf_total[i]);
     }
   }
-  // printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );
+  printf("\n\n world rank%d\ngetNearbyCoordinates %lf\n setindeces %lf\n loopforces %lf\n ApplyNewForces %lf\n gather %lf\n sum %lf\n",world_rank, time1, time2, time3, time4, time5, time1 +  time2 +  time3 +  time4 );
 
   // clear dynamic allocated memory
   if (world_rank == 0){
     free(gather);
     free(kinetic_energy_array);
     free(potential_energy_array);
+    fclose( fpEnergy );
+    fclose( fpRadial );
   }
 }
