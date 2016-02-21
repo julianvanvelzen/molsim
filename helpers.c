@@ -238,7 +238,7 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     if(cycle >= INITIALISATION_STEPS){
       for(k=0;k<NUMBER_OF_BINS;k++){
         rdf_total[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k];
-        printf("p %d cyc %d k %d rdf_total %lf rad k %d\n", i, cycle, k, rdf_total[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
+        // printf("p %d cyc %d k %d rdf_total %lf rad k %d\n", i, cycle, k, rdf_total[k], (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]);
         (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k] = 0;
       }
       Ek += ( SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y) ) / 2.0;

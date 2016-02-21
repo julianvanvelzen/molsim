@@ -8,7 +8,7 @@ double rdf_total[NUMBER_OF_BINS] = { 0 };
 
 void Mdloop(world_rank){
   int i, j,k;
-  double size, normalisation;
+  double size, normalisation, shell_area;
   double startwtime, endwtime;
   double time1, time2, time3, time4, time5;
 
@@ -71,9 +71,8 @@ void Mdloop(world_rank){
       endwtime = MPI_Wtime();
       time4 =  (endwtime-startwtime)*1000;
       // if (i%20 == 0 && i>INITIALISATION_STEPS) HistPrint(gphist, i);
-      // gnuprint(gp);
     }
-
+    if (world_rank == 1) gnuprint(gp);
   }
 
   if(world_rank == 0){
@@ -83,8 +82,11 @@ void Mdloop(world_rank){
     printf("Averages:\nKinetic: %lf\nPotential: %lf\nEnergy drift: %lf\nPressure: %lf\n", averages[0], averages[1], averages[2], averages[3]);
 
     for (i=0; i<NUMBER_OF_BINS; i++) {
+      shell_area = M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS));
       printf("\nrdf total %lf", rdf_total[i]);
-      rdf_total[i] *= ((1.0/(M_PI * (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)))) * (normalisation/NUMBER_OF_PARTICLES));
+      rdf_total[i] /= shell_area;
+      rdf_total[i] /= (NUMBER_OF_PARTICLES/SQR(GRIDSIZE));
+      rdf_total[i] *= normalisation;
       printf(" mpi %lf rcut20 %lf sqr-sqr%lf norm %lf rdf %lf", M_PI, (i+1)*RCUT/NUMBER_OF_BINS, (SQR((i+1)*RCUT/NUMBER_OF_BINS)-SQR(i*RCUT/NUMBER_OF_BINS)), normalisation/NUMBER_OF_PARTICLES, rdf_total[i]);
     }
   }
