@@ -16,14 +16,16 @@ void Initialize (){
 
     AssignCellnumber(i);
   }
-  printf("momentum: %lf %lf\n", momentum.x, momentum.y);  
+  
   momentum = VectorScalar(momentum, 1.0/NUMBER_OF_PARTICLES);
 
   for(i=0; i<NUMBER_OF_PARTICLES; i++){
    (particlelist + i)->velocity = VectorAddition((particlelist +i)->velocity, VectorScalar(momentum, -1));
    temp = VectorAddition(temp, (particlelist + i)->velocity);
   }
+
   printf("momentum: %lf %lf\n", temp.x, temp.y);
+
   // one double loop over all particles is necessary in initialisation 
   // to determine the forces during the first timestep
   for (i = 0; i < NUMBER_OF_PARTICLES-1; i++)

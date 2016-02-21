@@ -8,7 +8,7 @@ set NUMBER_OF_PARTICLES   = 500
 set RCUT                  = .1
 set REPULSIVE_CST         = 10
 set GRIDSIZE              = 3
-set DELTAT		            = 0.001
+set DELTAT		          = 0.001
 set DEBUG                 = f
 
 clear

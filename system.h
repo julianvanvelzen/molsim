@@ -50,7 +50,7 @@ int cmpfunc (const void * a, const void * b);
 void setindeces(Particle *particlelist, Cell *indices);
 void AssignCellnumber(int Particlenumber);
 void loopforces(Cell *cells, int world_rank);
-void sum_apply_contributions(Cell *cells, Particle *gather, int cycle, int worl);
+void sum_apply_contributions(Cell *cells, Particle *gather, int cycle);
 void gnuprint(FILE *gp);
 void displace_particles();
 void clean_exit_on_sig(int sig_num);
