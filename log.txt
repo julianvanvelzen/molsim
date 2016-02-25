@@ -8,8 +8,6 @@ REPULSIVE_CST:        2.000000
 GRIDSIZE:             3          
 DELTAT:               0.001000          
 
-
-
 Kinetic Energy: 24.500000 	 Potential Energy: 39.334856 	 Sum: 63.834856 	 Pressure: 12.410456 	 Temperature: 0.500000 	 Temperature scale 0.997334
 Kinetic Energy: 24.500000 	 Potential Energy: 33.141208 	 Sum: 57.641208 	 Pressure: 11.525514 	 Temperature: 0.500000 	 Temperature scale 0.997560
 Kinetic Energy: 24.500000 	 Potential Energy: 26.625296 	 Sum: 51.125296 	 Pressure: 10.541667 	 Temperature: 0.500000 	 Temperature scale 0.998370

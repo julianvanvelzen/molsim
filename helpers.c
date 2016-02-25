@@ -66,6 +66,9 @@ void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
   p2->force[1].x -= forceVector.x;
   p2->force[1].y -= forceVector.y;
 
+  if (forceVector.x != - VectorScalar(forceVector, -1.0).x)
+    printf("f1 != f2\n");
+
   // Potential and pressure are summed over all particles later,
   // there is no need to explicitly save p2->potential or p2->pressure
   p1->potential += REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);

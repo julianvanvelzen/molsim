@@ -93,7 +93,7 @@ void Mdloop(world_rank){
       if (i%50 == 0 && i > 0 ) printf("\nKinetic Energy: %lf \t Potential Energy: %lf \t Sum: %lf \t Pressure: %lf \t Temperature: %lf \t ", \
         kinetic_energy_array[i], potential_energy_array[i], kinetic_energy_array[i] + potential_energy_array[i], pressure_array[i], temperature_array[i]);
     }
-    if (world_rank == 1) gnuprint(gp);
+    // if (world_rank == 1) gnuprint(gp);
   }
 
   if(world_rank == 0){
