@@ -88,6 +88,20 @@ void Mdloop(world_rank){
       sum_apply_contributions(cells, gather, i);
       endwtime = MPI_Wtime(); time5 += (endwtime-startwtime)*1000;
 
+     if (i%100 == 0 && i>INITIALISATION_STEPS ) {
+       double total_momentum_x = 0;        
+       double total_momentum_y = 0;
+       double total_force_x = 0;
+       double total_force_y = 0;
+       for (j = 0; j < NUMBER_OF_PARTICLES; j++){
+         total_momentum_x += (particlelist+j)->velocity.x;
+         total_momentum_y += (particlelist+j)->velocity.y;
+         total_force_x    += (particlelist+j)->force[0].x;
+         total_force_y    += (particlelist+j)->force[0].y;
+        }
+        fprintf(fpMomentum, "%d %lf %lf\n", i , total_momentum_x, total_momentum_y   );
+        fprintf(fpForce, "%d %lf %lf\n", i , total_force_x, total_force_y   );
+      }
       if (i%10 == 0 && i > 0 ) LiveLinePrint(gphist, i);     
       if (i%10 == 0 && i > 0 ) WriteToFile(fpEnergy, i);
       if (i%50 == 0 && i > 0 ) printf("\nKinetic Energy: %lf \t Potential Energy: %lf \t Sum: %lf \t Pressure: %lf \t Temperature: %lf \t ", \
