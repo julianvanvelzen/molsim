@@ -1,4 +1,5 @@
 *.o
 *.out
 extra/
+data/
 log.txt
