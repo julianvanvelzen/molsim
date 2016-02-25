@@ -1,10 +1,11 @@
 
-set terminal png size 1200,800 enhanced font 'Helvetica,20'
-set output filename[:strlen(filename)-4].'.png'
+#set terminal png size 1200,800 enhanced font 'Helvetica,20'
+#set output filename[:strlen(filename)-4].'.png'
 
 
 set style line 1 lc rgb '#0060ad' lt 1 lw 1.5
 set style line 2 lc rgb '#09ad00' lt 1 lw 1.5
+set title 'Momentum'
 
 set xlabel 'Number of Cycles in simulation'
 set ylabel 'Momentum'

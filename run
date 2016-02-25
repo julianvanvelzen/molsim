@@ -2,18 +2,14 @@
 #
 
 set NUMBER_OF_PROCESSORS  = 9
-set TEMPERATURE           = 20
-set NUMBER_OF_CYCLES      = 500
-set NUMBER_OF_PARTICLES   = 50
-set RCUT                  = 1.0
 set TEMPERATURE           = 1
-set NUMBER_OF_CYCLES      = 200
-set NUMBER_OF_PARTICLES   = 100
-set RCUT                  = 0.5
+set NUMBER_OF_CYCLES      = 500
+set NUMBER_OF_PARTICLES   = 1000
+set RCUT                  = 1.0
 set REPULSIVE_CST         = 5
 set GRIDSIZE              = 3
-set DELTAT                = -0.1
-set INITIALISATION_STEPS  = 10
+set DELTAT                = 0.001
+set INITIALISATION_STEPS  = 50
 set DEBUG                 = f
 set PLOT                  = true
 

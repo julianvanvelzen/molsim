@@ -1,8 +1,8 @@
 #include "system.h"
 
 void Initialize (){
-  int i, j;
-  Vector momentum, temp;
+  int i, j, pbc_x, pbc_y;
+  Vector momentum;
 
   for (i=0;i<NUMBER_OF_PARTICLES;i++)
   {
@@ -17,18 +17,18 @@ void Initialize (){
   
   momentum = VectorScalar(momentum, -1.0/NUMBER_OF_PARTICLES);
 
-  for(i=0; i<NUMBER_OF_PARTICLES; i++){
+  for(i=0; i<NUMBER_OF_PARTICLES; i++)
    (particlelist + i)->velocity = VectorAddition((particlelist +i)->velocity, momentum);
-   temp = VectorAddition(temp, (particlelist + i)->velocity);
-  }
+
 
   // one double loop over all particles is necessary in initialisation 
   // to determine the forces during the first timestep
   for (i = 0; i < NUMBER_OF_PARTICLES-1; i++) {
     for(j = i + 1; j < NUMBER_OF_PARTICLES; j++) {
-      ForceEnergy((particlelist + i), (particlelist + j));
+      ForceEnergy((particlelist + i), (particlelist + j), pbc_x, pbc_y);
     }
   }
+
   for (i = 0; i < NUMBER_OF_PARTICLES; i++) {
     (particlelist + i)->force[0] = (particlelist + i)->force[1];  
     (particlelist + i)->force[1].y = 0.0;

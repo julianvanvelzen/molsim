@@ -1,39 +1,40 @@
 argc:                 10          
 NUMBER_OF_PROCESSORS: 9          
 TEMPERATURE:          1.000000          
-NUMBER_OF_CYCLES:     500          
-NUMBER_OF_PARTICLES:  200          
-RCUT:                 1.000000          
-REPULSIVE_CST:        5.000000          
+NUMBER_OF_CYCLES:     600          
+NUMBER_OF_PARTICLES:  100          
+RCUT:                 0.500000          
+REPULSIVE_CST:        100.000000          
 GRIDSIZE:             3          
 DELTAT:               0.001000          
 
 
+Warning: Temperature not sufficiently equillibrated! 
 Averages:            
-Kinetic energy:      577.305585            
-Potential energy:    10989.339882            
-Energy drift:        0.020350            
-Pressure:            1326.023209
+Kinetic energy:      2095.339407            
+Potential energy:    7258.181335            
+Energy drift:        0.246813            
+Pressure:            1240.365258
 
-RDF bin 0:	0.491455
-RDF bin 1:	2.173181
-RDF bin 2:	1.833895
-RDF bin 3:	1.193798
-RDF bin 4:	1.289394
-RDF bin 5:	1.810742
-RDF bin 6:	2.710939
-RDF bin 7:	2.610157
-RDF bin 8:	2.676269
-RDF bin 9:	2.331486
-RDF bin 10:	2.254541
-RDF bin 11:	1.691826
-RDF bin 12:	2.181651
-RDF bin 13:	2.398003
-RDF bin 14:	2.644610
-RDF bin 15:	2.318543
-RDF bin 16:	2.361402
-RDF bin 17:	2.488544
-RDF bin 18:	2.042715
-RDF bin 19:	1.859215
+RDF bin 0:	0.185013
+RDF bin 1:	0.826170
+RDF bin 2:	0.828059
+RDF bin 3:	0.331452
+RDF bin 4:	0.347988
+RDF bin 5:	0.398665
+RDF bin 6:	0.425800
+RDF bin 7:	0.488702
+RDF bin 8:	0.562099
+RDF bin 9:	0.714525
+RDF bin 10:	0.754022
+RDF bin 11:	0.666352
+RDF bin 12:	0.733986
+RDF bin 13:	0.743572
+RDF bin 14:	0.896041
+RDF bin 15:	0.738333
+RDF bin 16:	0.734598
+RDF bin 17:	0.762531
+RDF bin 18:	0.715412
+RDF bin 19:	0.929639
 
-Time elapsed: 37516.014099ms
+Time elapsed: 58843.997955ms
