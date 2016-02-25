@@ -37,30 +37,31 @@ void CheckInputErrors(){
 }
 
 void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
-  if(pbc_x == 1) p1->position.x -= GRIDSIZE;
-  if(pbc_y == 1) p1->position.y -= GRIDSIZE;
+  if(pbc_x == 1) p2->position.x += GRIDSIZE;
+  if(pbc_y == 1) p2->position.y += GRIDSIZE;
+
+  // printf("%lf %lf\n",p1->position.x, p1->position.y );
   
   float distance = VectorDistance(p1->position, p2->position);
   if (distance > RCUT) {
-    if(pbc_x == 1) p1->position.x += GRIDSIZE;
-    if(pbc_y == 1) p1->position.y += GRIDSIZE;
+    if(pbc_x == 1) p2->position.x -= GRIDSIZE;
+    if(pbc_y == 1) p2->position.y -= GRIDSIZE;
     return;
   }
   float force = (2.0*REPULSIVE_CST*fabs(distance-RCUT)/SQR(RCUT));
-  
+
   Vector relative_position;
   relative_position.x = (p1->position.x - p2->position.x);
   relative_position.y = (p1->position.y - p2->position.y);
 
-
   Vector forceVector;
   forceVector = VectorScalar(relative_position, force/distance);
-
-  if(pbc_x == 1) forceVector.x *= -1;
-  if(pbc_y == 1) forceVector.y *= -1;
   
   p1->force[1] = VectorAddition(p1->force[1], forceVector);     
   p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1.0)); 
+
+  if (forceVector.x != - VectorScalar(forceVector, -1.0).x)
+    printf("f1 != f2\n");
 
   // Potential and pressure are summed over all particles later,
   // there is no need to explicitly save p2->potential or p2->pressure
@@ -70,8 +71,8 @@ void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
   int rdf_bin_index = NUMBER_OF_BINS*distance/RCUT;
   p1->radial_distribution[rdf_bin_index] += 2;
 
-  if(pbc_x == 1) p1->position.x += GRIDSIZE;
-  if(pbc_y == 1) p1->position.y += GRIDSIZE;
+  if(pbc_x == 1) p2->position.x -= GRIDSIZE;
+  if(pbc_y == 1) p2->position.y -= GRIDSIZE;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){

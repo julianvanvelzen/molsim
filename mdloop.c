@@ -110,7 +110,7 @@ void Mdloop(world_rank){
       }
       if (i%10 == 0 && i>INITIALISATION_STEPS ) WriteToFile(fpEnergy, i);
     }
-    if (world_rank == 1) gnuprint(gp);
+    // if (world_rank == 1) gnuprint(gp);
   }
 
   if(world_rank == 0){

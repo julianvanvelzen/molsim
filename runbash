@@ -2,9 +2,9 @@
 
 NUMBER_OF_PROCESSORS=9
 NUMBER_OF_PARTICLES=100
-NUMBER_OF_CYCLES=600
-INITIALISATION_STEPS=50
-REPULSIVE_CST=100
+NUMBER_OF_CYCLES=100
+INITIALISATION_STEPS=10
+REPULSIVE_CST=0.1
 TEMPERATURE=1
 GRIDSIZE=3
 DELTAT=0.001
@@ -13,41 +13,57 @@ DEBUG=f
 PLOT=true
 
 
-clear
-make clean
-make
-
-if [[ "$DEBUG" = "t" ]]; then
-
-  fileradial= ls -t data/Radial*.dat | head -1
-  # gnuplot -e "filename='`ls -t data/Radial*.dat | head -1`'" -e "RCUT='${RCUT}'" plotRadial
 
 
-elif [[ "$DEBUG" = "GDB" ]]; then
-  
-  x = $(NUMBER_OF_PROCESSORS - 1)
-  mpirun -np 1 gdb --args ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE : -np $x ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS
-  
-elif [[ "$DEBUG" = "valgrind" ]]; then
-
-  mpirun -np $NUMBER_OF_PROCESSORS valgrind --leak-check=full --track-origins=yes --suppressions=/usr/share/openmpi/openmpi-valgrind.supp ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS
-
-else
-
-  mpirun -np $NUMBER_OF_PROCESSORS ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS > log.txt
-
-fi
-
-
-if [[ "$PLOT" = "true" ]]; then
+if [[ $1 == "plot" ]]; then
 
   fileenergy= ls -t data/Energy*.dat | head -1
   fileradial= ls -t data/Radial*.dat | head -1
   filemomentum= ls -t data/Momentum*.dat | head -1
   fileForce= ls -t data/Force*.dat | head -1
 
-  gnuplot -e "filename='`ls -t data/Energy*.dat | head -1`'"  plotEnergy
-  gnuplot -e "filename='`ls -t data/Radial*.dat | head -1`'" -e "RCUT='${RCUT}'" plotRadial
+  # gnuplot -e "filename='`ls -t data/Energy*.dat | head -1`'"  plotEnergy
+  # gnuplot -e "filename='`ls -t data/Radial*.dat | head -1`'" -e "RCUT='${RCUT}'" plotRadial
+  gnuplot -e "filename='`ls -t data/Momentum*.dat | head -1`'" plotMomentum
+  gnuplot -e "filename='`ls -t data/Force*.dat | head -1`'" plotForce
+
+elif [[ "$DEBUG" = "GDB" ]]; then
+  
+  clear
+  make clean
+  make
+
+  x = $(NUMBER_OF_PROCESSORS - 1)
+  mpirun -np 1 gdb --args ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE : -np $x ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS
+  
+elif [[ "$DEBUG" = "valgrind" ]]; then
+
+  clear
+  make clean
+  make
+
+  mpirun -np $NUMBER_OF_PROCESSORS valgrind --leak-check=full --track-origins=yes --suppressions=/usr/share/openmpi/openmpi-valgrind.supp ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS
+
+else
+
+  clear
+  make clean
+  make
+
+  mpirun -np $NUMBER_OF_PROCESSORS ./pdm $NUMBER_OF_PROCESSORS $TEMPERATURE $NUMBER_OF_CYCLES $NUMBER_OF_PARTICLES $RCUT $REPULSIVE_CST $GRIDSIZE $DELTAT $INITIALISATION_STEPS > log.txt
+
+fi
+
+
+if [[ "$PLOT" = "true" && $1 != "plot" ]]; then
+
+  fileenergy= ls -t data/Energy*.dat | head -1
+  fileradial= ls -t data/Radial*.dat | head -1
+  filemomentum= ls -t data/Momentum*.dat | head -1
+  fileForce= ls -t data/Force*.dat | head -1
+
+  # gnuplot -e "filename='`ls -t data/Energy*.dat | head -1`'"  plotEnergy
+  # gnuplot -e "filename='`ls -t data/Radial*.dat | head -1`'" -e "RCUT='${RCUT}'" plotRadial
   gnuplot -e "filename='`ls -t data/Momentum*.dat | head -1`'" plotMomentum
   gnuplot -e "filename='`ls -t data/Force*.dat | head -1`'" plotForce
 
