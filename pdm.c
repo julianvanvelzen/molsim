@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   double startwtime, endwtime;
   if(argc>3){
     NUMBER_OF_PROCESSORS = atoi(argv[1]);
-    TEMPERATURE          = atoi(argv[2]);
+    TEMPERATURE          = atof(argv[2]);
     NUMBER_OF_CYCLES     = atoi(argv[3]);
     NUMBER_OF_PARTICLES  = atoi(argv[4]);
     RCUT                 = atof(argv[5]);

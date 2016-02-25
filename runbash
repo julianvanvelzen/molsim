@@ -1,11 +1,11 @@
 #! /bin/bash
 
 NUMBER_OF_PROCESSORS=9
-NUMBER_OF_PARTICLES=100
-NUMBER_OF_CYCLES=600
-INITIALISATION_STEPS=50
-REPULSIVE_CST=100
-TEMPERATURE=1
+NUMBER_OF_PARTICLES=50
+NUMBER_OF_CYCLES=10000
+INITIALISATION_STEPS=500
+REPULSIVE_CST=2.0
+TEMPERATURE=0.5
 GRIDSIZE=3
 DELTAT=0.001
 RCUT=0.5
@@ -43,15 +43,14 @@ if [[ "$PLOT" = "true" ]]; then
 
   fileenergy= ls -t data/Energy*.dat | head -1
   fileradial= ls -t data/Radial*.dat | head -1
-  filemomentum= ls -t data/Momentum*.dat | head -1
-  fileForce= ls -t data/Force*.dat | head -1
+ # filemomentum= ls -t data/Momentum*.dat | head -1
+ # fileForce= ls -t data/Force*.dat | head -1
 
   gnuplot -e "filename='`ls -t data/Energy*.dat | head -1`'"  plotEnergy
   gnuplot -e "filename='`ls -t data/Radial*.dat | head -1`'" -e "RCUT='${RCUT}'" plotRadial
-  gnuplot -e "filename='`ls -t data/Momentum*.dat | head -1`'" plotMomentum
-  gnuplot -e "filename='`ls -t data/Force*.dat | head -1`'" plotForce
+ # gnuplot -e "filename='`ls -t data/Momentum*.dat | head -1`'" plotMomentum
+ # gnuplot -e "filename='`ls -t data/Force*.dat | head -1`'" plotForce
 
 fi
-
 
 exit

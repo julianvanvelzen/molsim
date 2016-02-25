@@ -31,7 +31,6 @@ typedef struct {
 typedef struct {
   int start;
   int end;
-  int totalcount;
   int neighbouringcells[8];
 } Cell;
 
@@ -42,7 +41,7 @@ Vector VectorAddition(Vector v1, Vector v2);
 Vector VectorScalar(Vector vector, double factor);
 Vector RanUnit(void);
 void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y);
-float VectorDistance(Vector v1, Vector v2);
+double VectorDistance(Vector v1, Vector v2);
 void getNearbyCoordinates(Cell *cell, int currentPosition);
 void Mdloop(int world_rank);
 int cmpfunc (const void * a, const void * b);
@@ -62,8 +61,9 @@ extern double REPULSIVE_CST;
 extern double DELTAT;
 extern double *kinetic_energy_array;
 extern double *potential_energy_array; 
-extern double averages[4]; 
-extern double pressure;
+extern double *pressure_array;
+extern double *temperature_array;
+extern double averages[5]; 
 extern double Energy_Reference;
 extern double rdf_total[NUMBER_OF_BINS];
 extern int NUMBER_OF_CYCLES;

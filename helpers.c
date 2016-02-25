@@ -14,6 +14,10 @@ void CheckInputErrors(){
     printf("There must be at least one particle in the box\n");
     Error = 1;
   }
+  if(NUMBER_OF_CYCLES < 300){
+    printf("Recommended to simulate at least 300 cycles\n");
+    Error = 1;
+  }
   if(RCUT > 1 || RCUT <=0){
     printf("Rcut must be higher than 0 and may not exceed 1\n");
     Error = 1;
@@ -37,41 +41,41 @@ void CheckInputErrors(){
 }
 
 void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
-  if(pbc_x == 1) p1->position.x -= GRIDSIZE;
-  if(pbc_y == 1) p1->position.y -= GRIDSIZE;
+  if(pbc_x != 0) p1->position.x -= GRIDSIZE;
+  if(pbc_y != 0) p1->position.y -= GRIDSIZE;
   
-  float distance = VectorDistance(p1->position, p2->position);
-  if (distance > RCUT) {
-    if(pbc_x == 1) p1->position.x += GRIDSIZE;
-    if(pbc_y == 1) p1->position.y += GRIDSIZE;
+  double distance = VectorDistance(p1->position, p2->position);
+  if (distance >= RCUT) {
+    if(pbc_x != 0) p1->position.x += GRIDSIZE;
+    if(pbc_y != 0) p1->position.y += GRIDSIZE;
     return;
   }
-  float force = (2.0*REPULSIVE_CST*fabs(distance-RCUT)/SQR(RCUT));
+  double force = (2.0*REPULSIVE_CST*sqrt(SQR(distance-RCUT))/SQR(RCUT));
   
   Vector relative_position;
   relative_position.x = (p1->position.x - p2->position.x);
   relative_position.y = (p1->position.y - p2->position.y);
 
-
   Vector forceVector;
-  forceVector = VectorScalar(relative_position, force/distance);
-
-  if(pbc_x == 1) forceVector.x *= -1;
-  if(pbc_y == 1) forceVector.y *= -1;
+  forceVector.x = relative_position.x * force/distance;
+  forceVector.y = relative_position.y * force/distance;
   
-  p1->force[1] = VectorAddition(p1->force[1], forceVector);     
-  p2->force[1] = VectorAddition(p2->force[1], VectorScalar(forceVector, -1.0)); 
+  p1->force[1].x += forceVector.x;
+  p1->force[1].y += forceVector.y;
+
+  p2->force[1].x -= forceVector.x;
+  p2->force[1].y -= forceVector.y;
 
   // Potential and pressure are summed over all particles later,
   // there is no need to explicitly save p2->potential or p2->pressure
-  p1->potential += 2*REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
+  p1->potential += REPULSIVE_CST*SQR(distance-RCUT)/SQR(RCUT);
   p1->pressure_contribution += 2*(forceVector.x*relative_position.x + forceVector.y*relative_position.y) / (2 * SQR(GRIDSIZE));
   
   int rdf_bin_index = NUMBER_OF_BINS*distance/RCUT;
   p1->radial_distribution[rdf_bin_index] += 2;
 
-  if(pbc_x == 1) p1->position.x += GRIDSIZE;
-  if(pbc_y == 1) p1->position.y += GRIDSIZE;
+  if(pbc_x != 0) p1->position.x += GRIDSIZE;
+  if(pbc_y != 0) p1->position.y += GRIDSIZE;
 }
 
 Vector VectorAddition(Vector v1, Vector v2){
@@ -87,9 +91,8 @@ Vector VectorScalar(Vector vector, double scalar){
   return vector;
 }
 
-float VectorDistance(Vector v1, Vector v2){
-  float distance;
-  distance = sqrt(SQR(v1.x - v2.x) + SQR(v1.y - v2.y));
+double VectorDistance(Vector v1, Vector v2){
+  double distance = sqrt(SQR(v1.x - v2.x) + SQR(v1.y - v2.y));
   return distance;
 }
 
@@ -102,8 +105,6 @@ Vector RanUnit(void){
 }
 
 void getNearbyCoordinates(Cell *cells, int currentPosition){
-  (cells+currentPosition)->totalcount = 0;
-
   (cells+currentPosition)->neighbouringcells[0] = currentPosition + GRIDSIZE;
   (cells+currentPosition)->neighbouringcells[1] = currentPosition + GRIDSIZE + 1;
   (cells+currentPosition)->neighbouringcells[2] = currentPosition + 1;
@@ -123,7 +124,7 @@ void getNearbyCoordinates(Cell *cells, int currentPosition){
   if ((currentPosition+1)%GRIDSIZE == 0 ){
     (cells+currentPosition)->neighbouringcells[1] = (currentPosition + 1)%(SQR(GRIDSIZE));
     (cells+currentPosition)->neighbouringcells[2] -= GRIDSIZE;
-    (cells+currentPosition)->neighbouringcells[3] = currentPosition - 2*GRIDSIZE+1;
+    (cells+currentPosition)->neighbouringcells[3] -= GRIDSIZE;
   }
   // bottom
   if (currentPosition-GRIDSIZE < 0){
@@ -190,20 +191,18 @@ void loopforces(Cell *cells, int world_rank){
     
     // loop over all neighbouring cells
     for (l=0; l<4; l++) {
-      // loop over all particles in neighbouring cells
-      mstart = (cells + (cells+world_rank)->neighbouringcells[l]  )->start;
-      mend   = (cells + (cells+world_rank)->neighbouringcells[l]  )->end;
+      // test for periodic boundary conditions        
+      if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)      pbc_x = 1;
+      if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) pbc_y = 1;
 
-      for (m  = mstart; m < mend; m++){
-        // apply periodic boundary conditions
-        if ( (l == 0 || l == 1) && (cells+world_rank)->neighbouringcells[l] < GRIDSIZE) pbc_y = 1;
-        if ( (l >= 1) && (cells+world_rank)->neighbouringcells[l] % GRIDSIZE == 0)      pbc_x = 1;
-        
+      // loop over all particles in neighbouring cells
+      mstart = (cells + (cells+world_rank)->neighbouringcells[l])->start;
+      mend   = (cells + (cells+world_rank)->neighbouringcells[l])->end;
+      for (m  = mstart; m < mend; m++)
         ForceEnergy((particlelist + i), (particlelist + m), pbc_x, pbc_y);
-        
-        pbc_x = 0;
-        pbc_y = 0;
-      }
+
+      pbc_x = 0;
+      pbc_y = 0;
     }
   }
 }
@@ -214,13 +213,14 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
   double Ev = 0;
   double scale;
   double current_pressure = 0;
+  double current_temperature = 0;
 
   // loop contributions of every particle
   for (i = 0; i < NUMBER_OF_PARTICLES; i++)
   {
     current_box_offset = (particlelist+i)->cellnumber;
     // Apply contributions of neighboring cells
-    // Only the contribution of bottom and left neighbours needs to be considered
+    // Only the contributions of bottom and left neighbours need to be considered
     for (j = 4; j < 8; j++) {   
       neighbour_offset = (cells+current_box_offset)->neighbouringcells[j];
       if(neighbour_offset == 0) continue; // (particlelist + i) already includes the contribution of box 0
@@ -232,53 +232,58 @@ void sum_apply_contributions(Cell *cells, Particle *gather, int cycle){
     if(current_box_offset != 0){    
       (particlelist +i)->force[1].x += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->force[1].x;
       (particlelist +i)->force[1].y += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->force[1].y;
-      (particlelist +i)->potential  += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->potential;
       (particlelist +i)->pressure_contribution += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->pressure_contribution;
     }
   
     // Calculate stuff
     (particlelist + i)->velocity.x += (particlelist + i)->force[1].x*0.5*DELTAT;
     (particlelist + i)->velocity.y += (particlelist + i)->force[1].y*0.5*DELTAT;
-    (particlelist + i)->force[0] = (particlelist + i)->force[1];
+    (particlelist + i)->force[0].x = (particlelist + i)->force[1].x;
+    (particlelist + i)->force[0].y = (particlelist + i)->force[1].y;
     (particlelist + i)->force[1].x = 0;
     (particlelist + i)->force[1].y = 0;
 
+    Ev += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->potential;
     Ek += (SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y)); // divided by 2 later for efficiency
-    Ev += (particlelist + i)->potential;
     current_pressure += (particlelist + i)->pressure_contribution;
     
-    if(cycle >= INITIALISATION_STEPS){
-      for(k=0;k<NUMBER_OF_BINS;k++){
+    if(cycle > INITIALISATION_STEPS){
+      for(k = 0; k < NUMBER_OF_BINS; k++){
         rdf_total[k] += (gather + (NUMBER_OF_PARTICLES*current_box_offset) + i)->radial_distribution[k]; 
-        if(current_box_offset == 0) (particlelist + i)->radial_distribution[k] = 0;
+        (particlelist + i)->radial_distribution[k] = 0;
       }
     }
   }
   
-  Ek /= 2.0;
+  Ek *= 0.5;
 
-
+  // scale velocities to temperature
   if(cycle < INITIALISATION_STEPS){
     scale = sqrt(TEMPERATURE*(2.0*NUMBER_OF_PARTICLES-2.0)/(2.0*Ek));
-    if(cycle == INITIALISATION_STEPS - 1 && fabs(scale - 1) > 0.1) printf("Warning: Temperature not sufficiently equillibrated! \n");
-    Ek = 0;    
+    Ek = 0;
+    if (cycle%50 ==0 && cycle > 51 ) printf("Temperature scale %lf", scale);
     for(i = 0; i < NUMBER_OF_PARTICLES; i++){
       (particlelist + i)->velocity = VectorScalar((particlelist + i)->velocity, scale);
       Ek += (SQR((particlelist + i)->velocity.x) + SQR((particlelist + i)->velocity.y));
     }
-    Ek /= 2.0;
+    Ek *= 0.5;
   }
 
-  *(kinetic_energy_array + cycle) = Ek;
-  *(potential_energy_array + cycle) = Ev;
   current_pressure += 2.0*Ek*NUMBER_OF_PARTICLES/(SQR(GRIDSIZE)*(2.0*NUMBER_OF_PARTICLES-2));
+  current_temperature = Ek/(NUMBER_OF_PARTICLES-1.0);
+
+  kinetic_energy_array[cycle]   = Ek;
+  potential_energy_array[cycle] = Ev;
+  pressure_array[cycle]         = current_pressure;
+  temperature_array[cycle]      = current_temperature;
 
   if(cycle == INITIALISATION_STEPS) Energy_Reference = Ek + Ev;
-  if(cycle >= INITIALISATION_STEPS){
+  if(cycle > INITIALISATION_STEPS){
     averages[0] += Ek;
     averages[1] += Ev;
     averages[2] += fabs(Energy_Reference - (Ek + Ev))/Energy_Reference;
     averages[3] += current_pressure;
+    averages[4] += current_temperature;
   }
 }
 
@@ -313,7 +318,7 @@ void LiveLinePrint(FILE *gp, int i){
   // printf("%d\n", i);
   fprintf(gp, options);
 
-  for (j=INITIALISATION_STEPS; j<i; j+=20){
+  for (j=0; j<i; j+=10){
     fprintf(gp, "%d %g %g %g\n", j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
     // printf("%d %lf %lf %lf\n",j , potential_energy_array[j],kinetic_energy_array[j],potential_energy_array[j]+kinetic_energy_array[j]  );
   } 
@@ -328,7 +333,9 @@ void WriteToFile(FILE *gp, int i){
 }
 
 void AssignCellnumber(int ParticleIndex){
-  (particlelist + ParticleIndex)->cellnumber = (int)(particlelist + ParticleIndex)->position.x + GRIDSIZE*(int)(particlelist + ParticleIndex)->position.y;
+  int poep = (particlelist + ParticleIndex)->position.x;
+  int poeper = (particlelist + ParticleIndex)->position.y;
+  (particlelist + ParticleIndex)->cellnumber =  poep + poeper * GRIDSIZE;
 }
 
 void displace_particles(){

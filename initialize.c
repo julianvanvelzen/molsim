@@ -15,6 +15,8 @@ void Initialize (){
     AssignCellnumber(i);
   }
   
+
+  
   momentum = VectorScalar(momentum, -1.0/NUMBER_OF_PARTICLES);
 
   for(i=0; i<NUMBER_OF_PARTICLES; i++)
