@@ -50,7 +50,7 @@ void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
     if(pbc_y != 0) p1->position.y += GRIDSIZE;
     return;
   }
-  double force = (2.0*REPULSIVE_CST*fabs(distance-RCUT))/SQR(RCUT));
+  double force = (2.0*REPULSIVE_CST*fabs(distance-RCUT)/SQR(RCUT));
   
   Vector relative_position;
   relative_position.x = (p1->position.x - p2->position.x);
@@ -65,9 +65,6 @@ void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
 
   p2->force[1].x -= forceVector.x;
   p2->force[1].y -= forceVector.y;
-
-  if (forceVector.x != - VectorScalar(forceVector, -1.0).x)
-    printf("f1 != f2\n");
 
   // Potential and pressure are summed over all particles later,
   // there is no need to explicitly save p2->potential or p2->pressure
@@ -336,9 +333,7 @@ void WriteToFile(FILE *gp, int i){
 }
 
 void AssignCellnumber(int ParticleIndex){
-  int poep = (particlelist + ParticleIndex)->position.x;
-  int poeper = (particlelist + ParticleIndex)->position.y;
-  (particlelist + ParticleIndex)->cellnumber =  poep + poeper * GRIDSIZE;
+  (particlelist + ParticleIndex)->cellnumber =  (int)(particlelist + ParticleIndex)->position.x + GRIDSIZE*(int)(particlelist + ParticleIndex)->position.y;
 }
 
 void displace_particles(){
