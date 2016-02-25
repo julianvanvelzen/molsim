@@ -41,8 +41,11 @@ void ForceEnergy(Particle *p1, Particle *p2, int pbc_x, int pbc_y){
   if(pbc_y == 1) p1->position.y -= GRIDSIZE;
   
   float distance = VectorDistance(p1->position, p2->position);
-  if (distance > RCUT) return;
-
+  if (distance > RCUT) {
+    if(pbc_x == 1) p1->position.x += GRIDSIZE;
+    if(pbc_y == 1) p1->position.y += GRIDSIZE;
+    return;
+  }
   float force = (2.0*REPULSIVE_CST*fabs(distance-RCUT)/SQR(RCUT));
   
   Vector relative_position;
