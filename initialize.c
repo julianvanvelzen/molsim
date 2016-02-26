@@ -27,7 +27,11 @@ void Initialize (){
   // to determine the forces during the first timestep
   for (i = 0; i < NUMBER_OF_PARTICLES-1; i++) {
     for(j = i + 1; j < NUMBER_OF_PARTICLES; j++) {
+      if ( fabs((particlelist + i)->position.x - (particlelist + j)->position.x ) > 1) pbc_x = 1; 
+      if ( fabs((particlelist + i)->position.y - (particlelist + j)->position.y ) > 1) pbc_y = 1;
       ForceEnergy((particlelist + i), (particlelist + j), pbc_x, pbc_y);
+      pbc_x = 0;
+      pbc_y = 0;
     }
   }
 

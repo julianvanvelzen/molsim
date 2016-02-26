@@ -10,6 +10,23 @@ DELTAT:               0.001000
 
 
 
-Kinetic Energy: 24.500000 	 Potential Energy: 36.209815 	 Sum: 60.709815 	 Pressure: 11.003584 	 Temperature: 0.500000 	 Temperature scale 0.997164
-Kinetic Energy: 24.500000 	 Potential Energy: 28.763691 	 Sum: 53.263691 	 Pressure: 11.045936 	 Temperature: 0.500000 	 [mpiexec@koen-System-Product-Name] Sending Ctrl-C to processes as requested
+Kinetic Energy: 24.500000 	 Potential Energy: 33.021381 	 Sum: 57.521381 	 Pressure: 10.588138 	 Temperature: 0.500000 	 Temperature scale 0.997820
+Kinetic Energy: 24.500000 	 Potential Energy: 27.770629 	 Sum: 52.270629 	 Pressure: 10.239870 	 Temperature: 0.500000 	 Temperature scale 0.998225
+Kinetic Energy: 24.500000 	 Potential Energy: 22.901300 	 Sum: 47.401300 	 Pressure: 9.612732 	 Temperature: 0.500000 	 Temperature scale 0.998980
+Kinetic Energy: 24.500000 	 Potential Energy: 18.935856 	 Sum: 43.435856 	 Pressure: 9.310396 	 Temperature: 0.500000 	 Temperature scale 0.999773
+Kinetic Energy: 24.500000 	 Potential Energy: 17.405540 	 Sum: 41.905540 	 Pressure: 9.027078 	 Temperature: 0.500000 	 Temperature scale 1.000345
+Kinetic Energy: 24.500000 	 Potential Energy: 17.610519 	 Sum: 42.110519 	 Pressure: 9.007626 	 Temperature: 0.500000 	 Temperature scale 1.000261
+Kinetic Energy: 24.500000 	 Potential Energy: 18.323048 	 Sum: 42.823048 	 Pressure: 9.326332 	 Temperature: 0.500000 	 Temperature scale 1.000357
+Kinetic Energy: 24.500000 	 Potential Energy: 19.147570 	 Sum: 43.647570 	 Pressure: 9.801529 	 Temperature: 0.500000 	 Temperature scale 0.999974
+Kinetic Energy: 24.500000 	 Potential Energy: 19.610832 	 Sum: 44.110832 	 Pressure: 9.860575 	 Temperature: 0.500000 	 
+Kinetic Energy: 24.514142 	 Potential Energy: 19.180055 	 Sum: 43.694197 	 Pressure: 9.531548 	 Temperature: 0.500289 	 
+Kinetic Energy: 25.448778 	 Potential Energy: 18.245397 	 Sum: 43.694175 	 Pressure: 9.378875 	 Temperature: 0.519363 	 
+Kinetic Energy: 26.272858 	 Potential Energy: 17.421290 	 Sum: 43.694148 	 Pressure: 9.228975 	 Temperature: 0.536181 	 
+Kinetic Energy: 26.165221 	 Potential Energy: 17.528931 	 Sum: 43.694152 	 Pressure: 9.058919 	 Temperature: 0.533984 	 
+Kinetic Energy: 25.447899 	 Potential Energy: 18.246289 	 Sum: 43.694188 	 Pressure: 8.925994 	 Temperature: 0.519345 	 
+Kinetic Energy: 25.147703 	 Potential Energy: 18.546483 	 Sum: 43.694186 	 Pressure: 9.039298 	 Temperature: 0.513218 	 
+Kinetic Energy: 25.171356 	 Potential Energy: 18.631542 	 Sum: 43.802899 	 Pressure: 9.064191 	 Temperature: 0.513701 	 
+Kinetic Energy: 24.976918 	 Potential Energy: 18.825981 	 Sum: 43.802899 	 Pressure: 9.251255 	 Temperature: 0.509733 	 
+Kinetic Energy: 24.598818 	 Potential Energy: 19.204077 	 Sum: 43.802896 	 Pressure: 9.260454 	 Temperature: 0.502017 	 
+Kinetic Energy: 24.236423 	 Potential Energy: 19.590211 	 Sum: 43.826635 	 Pressure: 9.098244 	 Temperature: 0.494621 	 [mpiexec@koen-System-Product-Name] Sending Ctrl-C to processes as requested
 [mpiexec@koen-System-Product-Name] Press Ctrl-C again to force abort
